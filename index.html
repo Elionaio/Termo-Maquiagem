@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Termo de Responsabilidade - Maquiagem</title>
+
+<style>
+body {
+  font-family: Arial;
+  background: #0f0f0f;
+  color: white;
+  margin: 0;
+}
+
+.container {
+  max-width: 400px;
+  margin: auto;
+  padding: 20px;
+}
+
+.box {
+  background: #1c1c1c;
+  padding: 20px;
+  border-radius: 12px;
+  margin-top: 40px;
+}
+
+h2 {
+  text-align: center;
+}
+
+button {
+  width: 100%;
+  padding: 12px;
+  margin-top: 15px;
+  border: none;
+  border-radius: 8px;
+  background: #00c853;
+  color: white;
+  font-weight: bold;
+}
+
+input, textarea {
+  width: 100%;
+  padding: 10px;
+  margin-top: 10px;
+  border-radius: 6px;
+  border: none;
+}
+
+.hidden {
+  display: none;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<!-- TELA 1 -->
+<div id="t1" class="box">
+  <h2>📝 Termo de Responsabilidade</h2>
+  <p>Preencha seus dados para iniciar</p>
+
+  <input id="nome" placeholder="Nome completo">
+  <button onclick="go(1)">Continuar</button>
+</div>
+
+<!-- TELA 2 -->
+<div id="t2" class="box hidden">
+  <h2>⚠️ Importante</h2>
+  <p>Antes do atendimento, informe:</p>
+  <p>• Alergias a cosméticos</p>
+  <p>• Problemas de pele</p>
+  <p>• Uso de medicamentos</p>
+
+  <button onclick="go(2)">Entendi</button>
+</div>
+
+<!-- TELA 3 -->
+<div id="t3" class="box hidden">
+  <h2>🧴 Condições da Pele</h2>
+
+  <label><input type="radio" name="pele" value="nao"> Não possuo</label><br>
+  <label><input type="radio" name="pele" value="sim"> Possuo</label>
+
+  <textarea id="obs" placeholder="Se sim, descreva..."></textarea>
+
+  <button onclick="validarPele()">Continuar</button>
+</div>
+
+<!-- TELA 4 -->
+<div id="t4" class="box hidden">
+  <h2>📌 Responsabilidade</h2>
+
+  <p>Você declara que informou corretamente suas condições e entende os riscos.</p>
+
+  <label>
+    <input type="checkbox" id="resp">
+    Eu entendo e assumo a responsabilidade
+  </label>
+
+  <button onclick="validarResp()">Continuar</button>
+</div>
+
+<!-- TELA 5 -->
+<div id="t5" class="box hidden">
+  <h2>📸 Uso de Imagem</h2>
+
+  <label><input type="radio" name="img" value="sim"> Autorizo</label><br>
+  <label><input type="radio" name="img" value="nao"> Não autorizo</label>
+
+  <button onclick="validarImg()">Continuar</button>
+</div>
+
+<!-- TELA 6 -->
+<div id="t6" class="box hidden">
+  <h2>✍️ Confirmação</h2>
+
+  <p>Digite exatamente:</p>
+  <b>LI E CONCORDO COM O TERMO</b>
+
+  <input id="confirm">
+
+  <button onclick="validarFinal()">Finalizar</button>
+</div>
+
+<!-- FINAL -->
+<div id="t7" class="box hidden">
+  <h2>✔️ Termo aceito</h2>
+  <p id="resumo"></p>
+</div>
+
+</div>
+
+<script>
+function go(n){
+  document.getElementById("t"+n).classList.add("hidden");
+  document.getElementById("t"+(n+1)).classList.remove("hidden");
+}
+
+function validarPele(){
+  let opcao = document.querySelector('input[name="pele"]:checked');
+  if(!opcao){
+    alert("Selecione uma opção");
+    return;
+  }
+  go(3);
+}
+
+function validarResp(){
+  if(!document.getElementById("resp").checked){
+    alert("Você precisa aceitar");
+    return;
+  }
+  go(4);
+}
+
+function validarImg(){
+  let img = document.querySelector('input[name="img"]:checked');
+  if(!img){
+    alert("Selecione uma opção");
+    return;
+  }
+  go(5);
+}
+
+function validarFinal(){
+  let nome = document.getElementById("nome").value;
+  let texto = document.getElementById("confirm").value;
+
+  if(!nome){
+    alert("Preencha o nome");
+    return;
+  }
+
+  if(texto !== "LI E CONCORDO COM O TERMO"){
+    alert("Digite corretamente");
+    return;
+  }
+
+  let data = new Date().toLocaleString();
+
+  document.getElementById("resumo").innerHTML =
+    "<b>Cliente:</b> " + nome + "<br><b>Data:</b> " + data;
+
+  go(6);
+}
+</script>
+
+</body>
+</html>
