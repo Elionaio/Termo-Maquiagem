@@ -5,52 +5,51 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Termo de Responsabilidade - Maquiagem</title>
 
+<script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+
+<script>
+(function(){
+emailjs.init("SEU_PUBLIC_KEY");
+})();
+</script>
+
 <style>
 body {
   font-family: Arial;
-  background: #0f0f0f;
-  color: white;
+  background: #f2f2f2;
   margin: 0;
 }
 
 .container {
-  max-width: 400px;
+  max-width: 600px;
   margin: auto;
+  background: white;
   padding: 20px;
-}
-
-.box {
-  background: #1c1c1c;
-  padding: 20px;
-  border-radius: 12px;
-  margin-top: 40px;
 }
 
 h2 {
   text-align: center;
 }
 
+input, textarea {
+  width: 100%;
+  padding: 8px;
+  margin-top: 5px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+}
+
+.section {
+  margin-top: 20px;
+}
+
 button {
   width: 100%;
   padding: 12px;
-  margin-top: 15px;
-  border: none;
-  border-radius: 8px;
-  background: #00c853;
+  background: black;
   color: white;
-  font-weight: bold;
-}
-
-input, textarea {
-  width: 100%;
-  padding: 10px;
-  margin-top: 10px;
-  border-radius: 6px;
   border: none;
-}
-
-.hidden {
-  display: none;
+  font-weight: bold;
 }
 </style>
 </head>
@@ -59,134 +58,106 @@ input, textarea {
 
 <div class="container">
 
-<!-- TELA 1 -->
-<div id="t1" class="box">
-  <h2>📝 Termo de Responsabilidade</h2>
-  <p>Preencha seus dados para iniciar</p>
+<h2>📝 TERMO DE RESPONSABILIDADE E CONSENTIMENTO - MAQUIAGEM</h2>
 
-  <input id="nome" placeholder="Nome completo">
-  <button onclick="go(1)">Continuar</button>
+<div class="section">
+<b>Identificação Cliente:</b>
+<input id="nome" placeholder="Nome completo">
 </div>
 
-<!-- TELA 2 -->
-<div id="t2" class="box hidden">
-  <h2>⚠️ Importante</h2>
-  <p>Antes do atendimento, informe:</p>
-  <p>• Alergias a cosméticos</p>
-  <p>• Problemas de pele</p>
-  <p>• Uso de medicamentos</p>
+<div class="section">
+<b>Data do Atendimento:</b>
+<input type="date" id="data">
 
-  <button onclick="go(2)">Entendi</button>
+<b>Hora:</b>
+<input type="time" id="hora">
 </div>
 
-<!-- TELA 3 -->
-<div id="t3" class="box hidden">
-  <h2>🧴 Condições da Pele</h2>
+<div class="section">
+<h3>Saúde e Condições da Pele (Anamnese)</h3>
 
-  <label><input type="radio" name="pele" value="nao"> Não possuo</label><br>
-  <label><input type="radio" name="pele" value="sim"> Possuo</label>
+<p>
+Declaro que fui informado(a) sobre alergias a cosméticos.
+Declaro que NÃO possuo, ou informei abaixo, alergias, doenças de pele ou uso de medicamentos fortes.
+</p>
 
-  <textarea id="obs" placeholder="Se sim, descreva..."></textarea>
-
-  <button onclick="validarPele()">Continuar</button>
+<b>Observações / Alergias:</b>
+<textarea id="obs"></textarea>
 </div>
 
-<!-- TELA 4 -->
-<div id="t4" class="box hidden">
-  <h2>📌 Responsabilidade</h2>
+<div class="section">
+<h3>Responsabilidade do Cliente</h3>
 
-  <p>Você declara que informou corretamente suas condições e entende os riscos.</p>
-
-  <label>
-    <input type="checkbox" id="resp">
-    Eu entendo e assumo a responsabilidade
-  </label>
-
-  <button onclick="validarResp()">Continuar</button>
+<p>
+Eu <input id="nome2" placeholder="Digite seu nome novamente">
+declaro que informei corretamente minhas condições.
+</p>
 </div>
 
-<!-- TELA 5 -->
-<div id="t5" class="box hidden">
-  <h2>📸 Uso de Imagem</h2>
+<div class="section">
+<h3>Consentimento de Imagem</h3>
 
-  <label><input type="radio" name="img" value="sim"> Autorizo</label><br>
-  <label><input type="radio" name="img" value="nao"> Não autorizo</label>
-
-  <button onclick="validarImg()">Continuar</button>
+<label><input type="radio" name="img" value="Autorizo"> Autorizo</label><br>
+<label><input type="radio" name="img" value="Não autorizo"> NÃO autorizo</label>
 </div>
 
-<!-- TELA 6 -->
-<div id="t6" class="box hidden">
-  <h2>✍️ Confirmação</h2>
+<div class="section">
+<h3>Assinatura</h3>
 
-  <p>Digite exatamente:</p>
-  <b>LI E CONCORDO COM O TERMO</b>
+<p>Li, entendi e concordo com os termos acima.</p>
 
-  <input id="confirm">
-
-  <button onclick="validarFinal()">Finalizar</button>
+<input id="assinatura" placeholder="Digite seu nome como assinatura">
 </div>
 
-<!-- FINAL -->
-<div id="t7" class="box hidden">
-  <h2>✔️ Termo aceito</h2>
-  <p id="resumo"></p>
-</div>
+<button onclick="finalizar()">FINALIZAR E ENVIAR</button>
+
+<p id="status" style="margin-top:15px;"></p>
 
 </div>
 
 <script>
-function go(n){
-  document.getElementById("t"+n).classList.add("hidden");
-  document.getElementById("t"+(n+1)).classList.remove("hidden");
-}
+function finalizar() {
 
-function validarPele(){
-  let opcao = document.querySelector('input[name="pele"]:checked');
-  if(!opcao){
-    alert("Selecione uma opção");
-    return;
-  }
-  go(3);
-}
-
-function validarResp(){
-  if(!document.getElementById("resp").checked){
-    alert("Você precisa aceitar");
-    return;
-  }
-  go(4);
-}
-
-function validarImg(){
-  let img = document.querySelector('input[name="img"]:checked');
-  if(!img){
-    alert("Selecione uma opção");
-    return;
-  }
-  go(5);
-}
-
-function validarFinal(){
   let nome = document.getElementById("nome").value;
-  let texto = document.getElementById("confirm").value;
+  let data = document.getElementById("data").value;
+  let hora = document.getElementById("hora").value;
+  let obs = document.getElementById("obs").value;
+  let nome2 = document.getElementById("nome2").value;
+  let assinatura = document.getElementById("assinatura").value;
+  let img = document.querySelector('input[name="img"]:checked');
 
-  if(!nome){
-    alert("Preencha o nome");
+  if (!nome || !data || !hora || !assinatura || !nome2) {
+    alert("Preencha todos os campos obrigatórios");
     return;
   }
 
-  if(texto !== "LI E CONCORDO COM O TERMO"){
-    alert("Digite corretamente");
+  if (!img) {
+    alert("Selecione autorização de imagem");
     return;
   }
 
-  let data = new Date().toLocaleString();
+  if (assinatura !== nome) {
+    alert("A assinatura deve ser igual ao nome");
+    return;
+  }
 
-  document.getElementById("resumo").innerHTML =
-    "<b>Cliente:</b> " + nome + "<br><b>Data:</b> " + data;
+  document.getElementById("status").innerText = "Enviando...";
 
-  go(6);
+  emailjs.send("SEU_SERVICE_ID", "SEU_TEMPLATE_ID", {
+    nome: nome,
+    data: data,
+    hora: hora,
+    obs: obs,
+    img: img.value,
+    assinatura: assinatura,
+    data_envio: new Date().toLocaleString()
+  })
+  .then(function() {
+    document.getElementById("status").innerText = "✔️ Termo enviado com sucesso!";
+  }, function(error) {
+    document.getElementById("status").innerText = "❌ Erro ao enviar. Tente novamente.";
+    console.log(error);
+  });
 }
 </script>
 
