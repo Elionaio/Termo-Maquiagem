@@ -1,175 +1,220 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Termo de Responsabilidade - Maquiagem</title>
+import streamlit as st
+import streamlit.components.v1 as components
+import firebase_admin
+from firebase_admin import credentials, db
+from datetime import datetime, timedelta
+from streamlit_autorefresh import st_autorefresh
 
-<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+# =========================
+# AUTO REFRESH
+# =========================
+st_autorefresh(interval=2000, key="refresh")
 
-<script>
-(function(){
-  emailjs.init({
-    publicKey: "RWYSXr8-S9ZN6s1eS"
-  });
-})();
-</script>
+# =========================
+# FIREBASE
+# =========================
+if not firebase_admin._apps:
+    cred = credentials.Certificate(dict(st.secrets["firebase"]))
+    firebase_admin.initialize_app(cred, {
+        'databaseURL': 'https://pizza-app-e6fb5-default-rtdb.firebaseio.com'
+    })
 
-<style>
-body {
-  font-family: Arial;
-  background: #f2f2f2;
-  margin: 0;
-}
+st.title("🍕 Sistema de Pedidos")
 
-.container {
-  max-width: 600px;
-  margin: auto;
-  background: white;
-  padding: 20px;
-}
+modo = st.radio("Modo", ["📝 Atendente", "🔥 Produção", "📋 Lista"])
 
-h2 {
-  text-align: center;
-}
+ref = db.reference('pedidos')
+dados = ref.get()
 
-input, textarea {
-  width: 100%;
-  padding: 8px;
-  margin-top: 5px;
-  margin-bottom: 15px;
-  border: 1px solid #ccc;
-}
+# =========================
+# 📝 ATENDENTE
+# =========================
+if modo == "📝 Atendente":
 
-.section {
-  margin-top: 20px;
-}
+    st.subheader("Novo Pedido")
 
-button {
-  width: 100%;
-  padding: 12px;
-  background: black;
-  color: white;
-  border: none;
-  font-weight: bold;
-}
-</style>
-</head>
+    nome = st.text_input("Nome")
+    sabor = st.text_input("Sabor")
+    obs = st.text_input("Observações")
 
-<body>
+    # =========================
+    # 🎤 VOZ FUNCIONAL (PONTE REAL)
+    # =========================
+    st.subheader("🎤 Ditado por voz")
 
-<div class="container">
+    voz = st.text_input("Texto da voz (vai aparecer aqui)")
 
-<h2>📝 TERMO DE RESPONSABILIDADE E CONSENTIMENTO - MAQUIAGEM</h2>
+    components.html("""
+    <button onclick="startRecognition()" style="font-size:18px;padding:10px;">
+        🎤 Falar
+    </button>
 
-<div class="section">
-<b>Identificação Cliente:</b>
-<input id="nome" placeholder="Nome completo">
-</div>
+    <p id="status">Clique e fale</p>
 
-<div class="section">
-<b>Data do Atendimento:</b>
-<input type="date" id="data">
-<b>Hora:</b>
-<input type="time" id="hora">
-</div>
+    <script>
+    function startRecognition() {
 
-<div class="section">
-<h3>🧴 Saúde e Condições da Pele</h3>
-<textarea id="obs" placeholder="Alergias, doenças, medicamentos..."></textarea>
-</div>
+        const recognition = new webkitSpeechRecognition();
 
-<div class="section">
-<h3>📌 Responsabilidade</h3>
-<p>
-Eu <input id="nome2" placeholder="Digite seu nome novamente">
-declaro que informei corretamente minhas condições.
-</p>
-</div>
+        recognition.lang = "pt-BR";
+        recognition.continuous = false;
+        recognition.interimResults = false;
 
-<div class="section">
-<h3>📸 Consentimento de Imagem</h3>
-<label><input type="radio" name="img" value="Autorizo"> Autorizo</label><br>
-<label><input type="radio" name="img" value="Não autorizo"> NÃO autorizo</label>
-</div>
+        document.getElementById("status").innerHTML = "Ouvindo...";
 
-<div class="section">
-<h3>⚠️ Isenção de Responsabilidade</h3>
-<p>
-Declaro estar ciente de que reações alérgicas podem ocorrer.
-Isento a profissional de qualquer responsabilidade por reações adversas,
-desde que os produtos estejam dentro das normas e tenham sido informados.
-</p>
+        recognition.start();
 
-<label>
-<input type="checkbox" id="isencao">
-Confirmo que li e aceito a isenção
-</label>
-</div>
+        recognition.onresult = function(event) {
+            const text = event.results[0][0].transcript;
 
-<div class="section">
-<h3>✍️ Assinatura</h3>
-<input id="assinatura" placeholder="Digite seu nome como assinatura">
-</div>
+            document.getElementById("status").innerHTML = "Você disse: " + text;
 
-<button onclick="finalizar()">FINALIZAR E ENVIAR</button>
+            // envia para Streamlit corretamente
+            const input = window.parent.document.querySelectorAll('input')[0];
 
-<p id="status"></p>
+            if (input) {
+                input.value = text;
+                input.dispatchEvent(new Event("input", { bubbles: true }));
+            }
+        };
 
-</div>
+        recognition.onerror = function(event) {
+            document.getElementById("status").innerHTML = "Erro: " + event.error;
+        };
+    }
+    </script>
+    """, height=120)
 
-<script>
-function finalizar() {
+    # =========================
+    # USO DO TEXTO
+    # =========================
+    if voz:
+        st.success(f"🎤 Você disse: {voz}")
 
-  let nome = document.getElementById("nome").value;
-  let data = document.getElementById("data").value;
-  let hora = document.getElementById("hora").value;
-  let obs = document.getElementById("obs").value;
-  let nome2 = document.getElementById("nome2").value;
-  let assinatura = document.getElementById("assinatura").value;
-  let img = document.querySelector('input[name="img"]:checked');
-  let isencao = document.getElementById("isencao");
+        c = voz.lower()
 
-  if (!nome || !data || !hora || !assinatura || !nome2) {
-    alert("Preencha todos os campos");
-    return;
-  }
+        if "calabresa" in c:
+            sabor = "Calabresa"
 
-  if (!img) {
-    alert("Selecione autorização de imagem");
-    return;
-  }
+        if "frango" in c:
+            sabor = "Frango"
 
-  if (!isencao.checked) {
-    alert("Você precisa aceitar a isenção");
-    return;
-  }
+        if "sem cebola" in c:
+            obs = "Sem cebola"
 
-  if (assinatura !== nome) {
-    alert("Assinatura diferente do nome");
-    return;
-  }
+    # =========================
+    # ENVIAR PEDIDO
+    # =========================
+    if st.button("Enviar Pedido"):
+        if nome and sabor:
+            pedido = {
+                "nome": nome,
+                "sabor": sabor,
+                "obs": obs,
+                "criado_em": datetime.utcnow().timestamp()
+            }
+            db.reference('pedidos').push(pedido)
+            st.success("Pedido enviado!")
+        else:
+            st.warning("Preencha nome e sabor")
 
-  document.getElementById("status").innerText = "Enviando...";
+# =========================
+# 🔥 PRODUÇÃO
+# =========================
+elif modo == "🔥 Produção":
 
-  emailjs.send("service_12zw4li", "template_nhf2fl6", {
-    nome: nome,
-    data: data,
-    hora: hora,
-    obs: obs,
-    img: img.value,
-    assinatura: assinatura,
-    data_envio: new Date().toLocaleString()
-  })
-  .then(() => {
-    document.getElementById("status").innerText = "✔️ Termo enviado com sucesso!";
-  })
-  .catch((error) => {
-    document.getElementById("status").innerText = "❌ Erro ao enviar";
-    console.log("ERRO REAL:", error);
-  });
-}
-</script>
+    if dados:
+        pedidos_lista = list(dados.items())
 
-</body>
-</html>
+        pedidos_lista = sorted(
+            pedidos_lista,
+            key=lambda x: x[1].get("criado_em", 0)
+        )
+
+        agora = datetime.utcnow()
+
+        col1, col2 = st.columns(2)
+        pedidos_ativos = pedidos_lista[:2]
+
+        for i, (key, pedido) in enumerate(pedidos_ativos):
+
+            tempo_preparo = 15 + (i * 10)
+
+            if "inicio" not in pedido:
+                inicio_ts = datetime.utcnow().timestamp()
+                db.reference(f'pedidos/{key}/inicio').set(inicio_ts)
+                inicio = datetime.fromtimestamp(inicio_ts)
+            else:
+                inicio = datetime.fromtimestamp(pedido["inicio"])
+
+            fim = inicio + timedelta(minutes=tempo_preparo)
+            restante = fim - agora
+
+            minutos = int(restante.total_seconds() // 60)
+            segundos = int(restante.total_seconds() % 60)
+
+            if restante.total_seconds() <= 0:
+                status = "✅ PRONTO"
+                cor = "#16a34a"
+            elif restante.total_seconds() < 300:
+                status = "⚠️ QUASE"
+                cor = "#f59e0b"
+            else:
+                status = "🔥 EM PREPARO"
+                cor = "#dc2626"
+
+            bloco = f"""
+            <div style="
+                height:300px;
+                display:flex;
+                flex-direction:column;
+                justify-content:center;
+                align-items:center;
+                border-radius:15px;
+                background:{cor};
+                color:white;
+                text-align:center;
+            ">
+                <h2>{pedido.get('sabor','')}</h2>
+                <h3>{pedido.get('nome','')}</h3>
+                <h1>{minutos}m {segundos}s</h1>
+                <p>{status}</p>
+            </div>
+            """
+
+            if i == 0:
+                with col1:
+                    st.markdown(bloco, unsafe_allow_html=True)
+                    if st.button("Finalizar", key=key):
+                        db.reference(f'pedidos/{key}').delete()
+                        st.rerun()
+
+            else:
+                with col2:
+                    st.markdown(bloco, unsafe_allow_html=True)
+                    if st.button("Finalizar", key=key):
+                        db.reference(f'pedidos/{key}').delete()
+                        st.rerun()
+
+    else:
+        st.info("Sem pedidos")
+
+# =========================
+# 📋 LISTA
+# =========================
+else:
+
+    if dados:
+        pedidos_lista = list(dados.values())
+        pedidos_lista.reverse()
+
+        for i, pedido in enumerate(pedidos_lista):
+            st.markdown(f"""
+            **Pedido {i+1}**  
+            👤 {pedido.get('nome','')}  
+            🍕 {pedido.get('sabor','')}  
+            📝 {pedido.get('obs','')}
+            """)
+            st.divider()
+    else:
+        st.info("Nenhum pedido ainda")
