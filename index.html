@@ -5,6 +5,7 @@
 <title>Termo de Responsabilidade</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
 
 <style>
 body {
@@ -51,53 +52,91 @@ canvas {
 
 <body>
 
-<h2>📝 TERMO DE CONSENTIMENTO - MAQUIAGEM</h2>
+<h2>📝 TERMO DE RESPONSABILIDADE E CONSENTIMENTO</h2>
 
 <form id="form">
 
-<input type="text" id="nome" placeholder="Nome" required>
+<input type="text" id="nome" placeholder="Nome completo" required>
 
 <div class="row">
   <input type="date" id="data" required>
   <input type="time" id="hora" required>
 </div>
 
-<p><b>Sobre o Atendimento</b></p>
-<textarea id="alergia"></textarea>
+<hr>
 
-<p><b>Imagem</b></p>
+<p><b>1. Sobre o Atendimento</b></p>
+<p>
+O cliente declara estar ciente dos procedimentos estéticos realizados,
+incluindo possíveis reações leves e temporárias.
+</p>
+
+<textarea id="alergia" placeholder="Informe alergias ou condições de pele"></textarea>
+
+<hr>
+
+<p><b>2. Agendamento</b></p>
+<p>
+O cliente compromete-se a comparecer no horário marcado.
+Atrasos podem afetar o tempo de atendimento.
+</p>
+
+<div class="check-group">
+  <label><input type="checkbox" class="check"> Estou ciente do horário agendado</label>
+</div>
+
+<hr>
+
+<p><b>3. Condições de Saúde</b></p>
+<p>
+Declaro que informei corretamente todas as condições relevantes.
+</p>
+
+<div class="check-group">
+  <label><input type="checkbox" class="check"> Informei corretamente minhas condições de saúde</label>
+</div>
+
+<hr>
+
+<p><b>4. Procedimento</b></p>
+<p>
+Estou ciente de que resultados podem variar conforme tipo de pele.
+</p>
+
+<div class="check-group">
+  <label><input type="checkbox" class="check"> Concordo com as condições do procedimento</label>
+</div>
+
+<hr>
+
+<p><b>5. Consentimento de Imagem</b></p>
+
 <div class="radio-group">
   <label><input type="radio" name="imagem" value="Autoriza"> Autoriza</label>
   <label><input type="radio" name="imagem" value="Não autoriza"> Não autoriza</label>
 </div>
 
-<p><b>Confirmações</b></p>
-<div class="check-group">
-  <label><input type="checkbox" class="check"> Comparecerei no horário</label>
-  <label><input type="checkbox" class="check"> Informei alergias</label>
-  <label><input type="checkbox" class="check"> Estou ciente do procedimento</label>
-</div>
+<hr>
 
-<p><b>Assinatura:</b></p>
+<p><b>6. Assinatura</b></p>
 <canvas id="assinaturaCanvas"></canvas>
 <button type="button" onclick="limpar()">Limpar assinatura</button>
 
-<button type="submit">Gerar e Enviar</button>
+<button type="submit">Gerar e Enviar Termo</button>
 
 </form>
 
 <!-- PDF -->
-<div id="pdf" style="display:none; padding:30px;">
+<div id="pdf" style="display:none; padding:30px; font-family:Arial;">
 
-<h2 style="text-align:center;">TERMO DE CONSENTIMENTO</h2>
+<h2 style="text-align:center;">TERMO DE RESPONSABILIDADE</h2>
 
 <p><b>Nome:</b> <span id="p_nome"></span></p>
-<p><b>Data:</b> <span id="p_data"></span></p>
-<p><b>Hora:</b> <span id="p_hora"></span></p>
+<p><b>Data:</b> <span id="p_data"></span> | <b>Hora:</b> <span id="p_hora"></span></p>
 
 <hr>
 
-<p><b>Alergias:</b></p>
+<p><b>Sobre o Atendimento:</b></p>
 <p id="p_alergia"></p>
 
 <hr>
@@ -106,73 +145,67 @@ canvas {
 
 <hr>
 
+<p><b>Declarações:</b></p>
 <ul id="p_checks"></ul>
 
 <hr>
 
-<img id="p_assinatura" style="width:200px;">
+<p><b>Assinatura:</b></p>
+<img id="p_assinatura" style="width:220px; border-bottom:1px solid #000;">
 
 </div>
 
 <script>
-// ===== ASSINATURA CORRIGIDA =====
+emailjs.init("SUA_PUBLIC_KEY");
+
+// assinatura
 const canvas = document.getElementById("assinaturaCanvas");
 const ctx = canvas.getContext("2d");
 
-function ajustarCanvas(){
-  const ratio = window.devicePixelRatio || 1;
-  canvas.width = canvas.offsetWidth * ratio;
-  canvas.height = canvas.offsetHeight * ratio;
-  ctx.scale(ratio, ratio);
+function resize(){
+  const r = window.devicePixelRatio || 1;
+  canvas.width = canvas.offsetWidth * r;
+  canvas.height = canvas.offsetHeight * r;
+  ctx.scale(r,r);
 }
+resize();
 
-ajustarCanvas();
+let draw = false;
 
-let desenhando = false;
-
-function getPos(e){
-  const rect = canvas.getBoundingClientRect();
-  return {
-    x: e.touches[0].clientX - rect.left,
-    y: e.touches[0].clientY - rect.top
-  };
-}
-
-canvas.addEventListener("touchstart", (e)=>{
-  desenhando = true;
-  const pos = getPos(e);
+canvas.addEventListener("touchstart", e=>{
+  draw = true;
+  const t = e.touches[0];
+  const r = canvas.getBoundingClientRect();
   ctx.beginPath();
-  ctx.moveTo(pos.x, pos.y);
+  ctx.moveTo(t.clientX - r.left, t.clientY - r.top);
 });
 
-canvas.addEventListener("touchmove", (e)=>{
-  if(!desenhando) return;
-  const pos = getPos(e);
+canvas.addEventListener("touchmove", e=>{
+  if(!draw) return;
+  const t = e.touches[0];
+  const r = canvas.getBoundingClientRect();
 
   ctx.lineWidth = 2.5;
   ctx.lineCap = "round";
 
-  ctx.lineTo(pos.x, pos.y);
+  ctx.lineTo(t.clientX - r.left, t.clientY - r.top);
   ctx.stroke();
 });
 
-canvas.addEventListener("touchend", ()=>{
-  desenhando = false;
-});
+canvas.addEventListener("touchend", ()=> draw=false);
 
-// limpar REAL
 function limpar(){
   ctx.clearRect(0,0,canvas.width,canvas.height);
   ctx.beginPath();
 }
 
-// ===== SUBMIT =====
+// submit
 document.getElementById("form").addEventListener("submit", async function(e){
 e.preventDefault();
 
-const nome = document.getElementById("nome").value;
-const data = document.getElementById("data").value;
-const hora = document.getElementById("hora").value;
+const nome = nome.value;
+const data = data.value;
+const hora = hora.value;
 const alergia = document.getElementById("alergia").value;
 
 const imagem = document.querySelector('input[name="imagem"]:checked');
@@ -182,18 +215,18 @@ if(!imagem){ alert("Selecione imagem"); return; }
 
 let ok = true;
 checks.forEach(c=>{ if(!c.checked) ok=false; });
-if(!ok){ alert("Confirme tudo"); return; }
+if(!ok){ alert("Confirme todas as declarações"); return; }
 
 // assinatura
-const assinaturaImg = canvas.toDataURL();
+const assinatura = canvas.toDataURL();
 
-// preencher
+// preencher PDF
 p_nome.innerText = nome;
 p_data.innerText = data;
 p_hora.innerText = hora;
 p_alergia.innerText = alergia || "Nenhuma";
 p_imagem.innerText = imagem.value;
-p_assinatura.src = assinaturaImg;
+p_assinatura.src = assinatura;
 
 p_checks.innerHTML = "";
 checks.forEach(c=>{
@@ -202,27 +235,37 @@ checks.forEach(c=>{
   p_checks.appendChild(li);
 });
 
-// PDF
-const element = document.getElementById("pdf");
-element.style.display = "block";
+// gerar PDF
+const el = document.getElementById("pdf");
+el.style.display = "block";
 
-const worker = html2pdf().from(element).toPdf();
+const worker = html2pdf().from(el).toPdf();
 const pdfBlob = await worker.outputPdf("blob");
 
 await worker.save();
 
-element.style.display = "none";
+el.style.display = "none";
 
-// ===== WHATSAPP AUTOMÁTICO =====
-const numero = "553196362001"; // SEU NÚMERO
+// converter e enviar email
+const reader = new FileReader();
 
-const mensagem = `Olá, segue meu termo preenchido:
+reader.readAsDataURL(pdfBlob);
 
-Nome: ${nome}
-Data: ${data}
-Hora: ${hora}`;
+reader.onloadend = function () {
 
-window.open(`https://wa.me/${numero}?text=${encodeURIComponent(mensagem)}`, "_blank");
+  emailjs.send("SEU_SERVICE_ID", "SEU_TEMPLATE_ID", {
+    nome: nome,
+    data: data,
+    hora: hora,
+    mensagem: "Novo termo recebido",
+    arquivo: reader.result
+  })
+  .then(() => {
+    alert("Termo enviado com sucesso!");
+  })
+  .catch(err => console.log(err));
+
+};
 
 });
 </script>
