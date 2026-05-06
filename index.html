@@ -5,267 +5,174 @@
 <title>Termo de Responsabilidade</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
 
 <style>
-body {
+body{
   font-family: Arial;
   max-width: 700px;
   margin: auto;
   padding: 20px;
 }
 
-h2 { text-align: center; }
-
-input, textarea {
-  border: none;
-  border-bottom: 1px solid black;
-  width: 100%;
-  margin-top: 5px;
+h2{
+  text-align:center;
 }
 
-textarea { height: 60px; }
-
-.row { display: flex; gap: 10px; }
-
-.radio-group { display: flex; gap: 20px; margin-top: 10px; }
-
-.check-group label { display: block; margin-top: 8px; }
-
-button {
-  margin-top: 15px;
-  padding: 10px;
-  width: 100%;
-  background: black;
-  color: white;
-  border: none;
+input, textarea{
+  width:100%;
+  border:none;
+  border-bottom:1px solid #000;
+  margin-top:10px;
+  padding:5px;
 }
 
-canvas {
-  border: 1px solid black;
-  width: 100%;
-  height: 150px;
-  margin-top: 10px;
+.row{
+  display:flex;
+  gap:10px;
+}
+
+button{
+  width:100%;
+  margin-top:20px;
+  padding:10px;
+  background:black;
+  color:white;
+  border:none;
 }
 </style>
 </head>
 
 <body>
 
-<h2>📝 TERMO DE RESPONSABILIDADE E CONSENTIMENTO</h2>
+<h2>TERMO DE RESPONSABILIDADE E CONSENTIMENTO - MAQUIAGEM</h2>
 
 <form id="form">
 
-<input type="text" id="nome" placeholder="Nome completo" required>
+<label>Nome completo</label>
+<input type="text" id="nome" required>
 
 <div class="row">
-  <input type="date" id="data" required>
-  <input type="time" id="hora" required>
+  <div>
+    <label>Data do atendimento</label>
+    <input type="date" id="data" required>
+  </div>
+
+  <div>
+    <label>Hora</label>
+    <input type="time" id="hora" required>
+  </div>
 </div>
 
 <hr>
 
-<p><b>1. Sobre o Atendimento</b></p>
+<h3>Saúde e Condições da Pele (Anamnese)</h3>
 <p>
-O cliente declara estar ciente dos procedimentos estéticos realizados,
-incluindo possíveis reações leves e temporárias.
+Declaro que fui informado(a) sobre a necessidade de informar alergias a cosméticos,
+doenças de pele ou uso de medicamentos fortes.
 </p>
 
-<textarea id="alergia" placeholder="Informe alergias ou condições de pele"></textarea>
+<textarea id="alergias" placeholder="Descreva alergias ou observações"></textarea>
 
 <hr>
 
-<p><b>2. Agendamento</b></p>
+<h3>Responsabilidade do Cliente</h3>
 <p>
-O cliente compromete-se a comparecer no horário marcado.
-Atrasos podem afetar o tempo de atendimento.
+Eu <input type="text" id="nome2" placeholder="Nome novamente" required>
+comprometo-me a higienizar meu rosto antes do atendimento.
 </p>
 
-<div class="check-group">
-  <label><input type="checkbox" class="check"> Estou ciente do horário agendado</label>
-</div>
-
 <hr>
 
-<p><b>3. Condições de Saúde</b></p>
-<p>
-Declaro que informei corretamente todas as condições relevantes.
-</p>
+<h3>Consentimento de Imagem</h3>
 
-<div class="check-group">
-  <label><input type="checkbox" class="check"> Informei corretamente minhas condições de saúde</label>
-</div>
+<label>
+<input type="radio" name="img" value="Autorizo" required>
+Autorizo uso de imagens
+</label>
 
-<hr>
+<br>
 
-<p><b>4. Procedimento</b></p>
-<p>
-Estou ciente de que resultados podem variar conforme tipo de pele.
-</p>
+<label>
+<input type="radio" name="img" value="Não autorizo">
+Não autorizo uso de imagens
+</label>
 
-<div class="check-group">
-  <label><input type="checkbox" class="check"> Concordo com as condições do procedimento</label>
-</div>
+<br><br>
 
-<hr>
-
-<p><b>5. Consentimento de Imagem</b></p>
-
-<div class="radio-group">
-  <label><input type="radio" name="imagem" value="Autoriza"> Autoriza</label>
-  <label><input type="radio" name="imagem" value="Não autoriza"> Não autoriza</label>
-</div>
-
-<hr>
-
-<p><b>6. Assinatura</b></p>
-<canvas id="assinaturaCanvas"></canvas>
-<button type="button" onclick="limpar()">Limpar assinatura</button>
-
-<button type="submit">Gerar e Enviar Termo</button>
+<button type="submit">Gerar PDF</button>
 
 </form>
 
-<!-- PDF -->
-<div id="pdf" style="display:none; padding:30px; font-family:Arial;">
+<!-- PDF oculto -->
+<div id="pdf" style="display:none; padding:30px;">
 
-<h2 style="text-align:center;">TERMO DE RESPONSABILIDADE</h2>
+<h2>TERMO DE RESPONSABILIDADE E CONSENTIMENTO</h2>
 
-<p><b>Nome:</b> <span id="p_nome"></span></p>
+<p><b>Cliente:</b> <span id="p_nome"></span></p>
+
 <p><b>Data:</b> <span id="p_data"></span> | <b>Hora:</b> <span id="p_hora"></span></p>
 
 <hr>
 
-<p><b>Sobre o Atendimento:</b></p>
-<p id="p_alergia"></p>
+<h3>Saúde e Condições da Pele</h3>
+<p id="p_alergias"></p>
 
 <hr>
 
-<p><b>Imagem:</b> <span id="p_imagem"></span></p>
+<h3>Responsabilidade do Cliente</h3>
+<p id="p_responsavel"></p>
 
 <hr>
 
-<p><b>Declarações:</b></p>
-<ul id="p_checks"></ul>
+<h3>Consentimento de Imagem</h3>
+<p id="p_img"></p>
 
 <hr>
 
-<p><b>Assinatura:</b></p>
-<img id="p_assinatura" style="width:220px; border-bottom:1px solid #000;">
+<p><b>Declaração:</b></p>
+<p>
+Declaro que li, entendi e concordo com todos os termos acima.
+</p>
 
 </div>
 
 <script>
-emailjs.init("SUA_PUBLIC_KEY");
+document.getElementById("form").addEventListener("submit", function(e){
+  e.preventDefault();
 
-// assinatura
-const canvas = document.getElementById("assinaturaCanvas");
-const ctx = canvas.getContext("2d");
+  const nome = document.getElementById("nome").value;
+  const data = document.getElementById("data").value;
+  const hora = document.getElementById("hora").value;
+  const alergias = document.getElementById("alergias").value;
+  const nome2 = document.getElementById("nome2").value;
 
-function resize(){
-  const r = window.devicePixelRatio || 1;
-  canvas.width = canvas.offsetWidth * r;
-  canvas.height = canvas.offsetHeight * r;
-  ctx.scale(r,r);
-}
-resize();
+  const img = document.querySelector('input[name="img"]:checked');
 
-let draw = false;
+  if(!img){
+    alert("Selecione o consentimento de imagem");
+    return;
+  }
 
-canvas.addEventListener("touchstart", e=>{
-  draw = true;
-  const t = e.touches[0];
-  const r = canvas.getBoundingClientRect();
-  ctx.beginPath();
-  ctx.moveTo(t.clientX - r.left, t.clientY - r.top);
-});
+  // preencher PDF
+  document.getElementById("p_nome").innerText = nome;
+  document.getElementById("p_data").innerText = data;
+  document.getElementById("p_hora").innerText = hora;
+  document.getElementById("p_alergias").innerText = alergias || "Nenhuma informação";
+  document.getElementById("p_responsavel").innerText =
+    `Eu ${nome2} comprometo-me a higienizar meu rosto antes do atendimento.`;
 
-canvas.addEventListener("touchmove", e=>{
-  if(!draw) return;
-  const t = e.touches[0];
-  const r = canvas.getBoundingClientRect();
+  document.getElementById("p_img").innerText = img.value;
 
-  ctx.lineWidth = 2.5;
-  ctx.lineCap = "round";
+  // gerar PDF
+  const el = document.getElementById("pdf");
+  el.style.display = "block";
 
-  ctx.lineTo(t.clientX - r.left, t.clientY - r.top);
-  ctx.stroke();
-});
-
-canvas.addEventListener("touchend", ()=> draw=false);
-
-function limpar(){
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-  ctx.beginPath();
-}
-
-// submit
-document.getElementById("form").addEventListener("submit", async function(e){
-e.preventDefault();
-
-const nome = nome.value;
-const data = data.value;
-const hora = hora.value;
-const alergia = document.getElementById("alergia").value;
-
-const imagem = document.querySelector('input[name="imagem"]:checked');
-const checks = document.querySelectorAll(".check");
-
-if(!imagem){ alert("Selecione imagem"); return; }
-
-let ok = true;
-checks.forEach(c=>{ if(!c.checked) ok=false; });
-if(!ok){ alert("Confirme todas as declarações"); return; }
-
-// assinatura
-const assinatura = canvas.toDataURL();
-
-// preencher PDF
-p_nome.innerText = nome;
-p_data.innerText = data;
-p_hora.innerText = hora;
-p_alergia.innerText = alergia || "Nenhuma";
-p_imagem.innerText = imagem.value;
-p_assinatura.src = assinatura;
-
-p_checks.innerHTML = "";
-checks.forEach(c=>{
-  let li = document.createElement("li");
-  li.innerText = c.parentElement.innerText;
-  p_checks.appendChild(li);
-});
-
-// gerar PDF
-const el = document.getElementById("pdf");
-el.style.display = "block";
-
-const worker = html2pdf().from(el).toPdf();
-const pdfBlob = await worker.outputPdf("blob");
-
-await worker.save();
-
-el.style.display = "none";
-
-// converter e enviar email
-const reader = new FileReader();
-
-reader.readAsDataURL(pdfBlob);
-
-reader.onloadend = function () {
-
-  emailjs.send("SEU_SERVICE_ID", "SEU_TEMPLATE_ID", {
-    nome: nome,
-    data: data,
-    hora: hora,
-    mensagem: "Novo termo recebido",
-    arquivo: reader.result
-  })
-  .then(() => {
-    alert("Termo enviado com sucesso!");
-  })
-  .catch(err => console.log(err));
-
-};
+  html2pdf()
+    .from(el)
+    .save("termo-responsabilidade.pdf")
+    .then(() => {
+      el.style.display = "none";
+    });
 
 });
 </script>
