@@ -7,225 +7,147 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
 <style>
-  body {
-    font-family: Arial;
-    max-width: 700px;
-    margin: auto;
-    padding: 20px;
-    color: #000;
-  }
+body {
+  font-family: Arial;
+  max-width: 700px;
+  margin: auto;
+  padding: 20px;
+}
 
-  h2 {
-    text-align: center;
-  }
+h2 { text-align: center; }
 
-  input, textarea {
-    border: none;
-    border-bottom: 1px solid black;
-    width: 100%;
-    font-size: 14px;
-    margin-top: 5px;
-  }
+input, textarea {
+  border: none;
+  border-bottom: 1px solid black;
+  width: 100%;
+  margin-top: 5px;
+}
 
-  textarea {
-    height: 60px;
-    resize: none;
-  }
+textarea { height: 60px; }
 
-  .row {
-    display: flex;
-    gap: 10px;
-  }
+.row { display: flex; gap: 10px; }
+.row div { flex: 1; }
 
-  .row div {
-    flex: 1;
-  }
+.radio-group { display: flex; gap: 20px; margin-top: 10px; }
 
-  .radio-group {
-    display: flex;
-    gap: 20px;
-    margin-top: 10px;
-  }
+.check-group label {
+  display: block;
+  margin-top: 8px;
+}
 
-  .check-group {
-    margin-top: 15px;
-  }
-
-  button {
-    margin-top: 20px;
-    padding: 10px;
-    width: 100%;
-    background: black;
-    color: white;
-    border: none;
-  }
-
-  hr {
-    margin: 20px 0;
-  }
+button {
+  margin-top: 20px;
+  padding: 10px;
+  width: 100%;
+  background: black;
+  color: white;
+  border: none;
+}
 </style>
 </head>
 
 <body>
 
-<h2>📝 TERMO DE RESPONSABILIDADE E CONSENTIMENTO - MAQUIAGEM</h2>
+<h2>📝 TERMO DE RESPONSABILIDADE - MAQUIAGEM</h2>
 
 <form id="form">
 
-<p><b>Identificação do Cliente:</b></p>
-<input type="text" id="nome" required>
-
-<br><br>
+<input type="text" id="nome" placeholder="Nome" required>
 
 <div class="row">
-  <div>
-    <b>Data do Atendimento:</b>
-    <input type="date" id="data" required>
-  </div>
-  <div>
-    <b>Hora:</b>
-    <input type="time" id="hora" required>
-  </div>
+  <div><input type="date" id="data" required></div>
+  <div><input type="time" id="hora" required></div>
 </div>
 
-<hr>
+<textarea id="alergia" placeholder="Alergias"></textarea>
 
-<p><b>Agendamento e Pontualidade</b></p>
-<p>
-O cliente declara estar ciente de que deve comparecer no horário agendado.
-Em caso de atraso, o atendimento poderá ser ajustado conforme disponibilidade.
-</p>
-
-<hr>
-
-<p><b>Saúde e Condições da Pele (Anamnese)</b></p>
-<p>
-Declaro que fui orientado(a) a informar qualquer alergia, sensibilidade,
-doença de pele ou uso de medicamentos.
-</p>
-
-<p><b>Observações / Alergias:</b></p>
-<textarea id="alergia"></textarea>
-
-<hr>
-
-<p><b>Responsabilidade do Cliente</b></p>
-<p>
-Eu <span id="pdf_nome_inline"></span> declaro que as informações fornecidas são verdadeiras.
-</p>
-
-<hr>
-
-<p><b>Consentimento de Imagem</b></p>
-
+<p><b>Imagem</b></p>
 <div class="radio-group">
   <label><input type="radio" name="imagem" value="Autoriza"> Autoriza</label>
   <label><input type="radio" name="imagem" value="Não autoriza"> Não autoriza</label>
 </div>
 
-<hr>
-
-<p><b>Isenção de Responsabilidade</b></p>
-
+<p><b>Confirmações</b></p>
 <div class="check-group">
-  <label>
-    <input type="checkbox" id="isencao">
-    Declaro que fui previamente informado(a) sobre possíveis reações e isento a profissional de responsabilidade.
-  </label>
+  <label><input type="checkbox" class="check"> Comparecerei no horário</label>
+  <label><input type="checkbox" class="check"> Informei alergias</label>
+  <label><input type="checkbox" class="check"> Ciente de riscos</label>
+  <label><input type="checkbox" class="check"> Autorizo procedimento</label>
+  <label><input type="checkbox" class="check"> Isento profissional</label>
 </div>
 
-<hr>
+<input type="text" id="assinatura" placeholder="Assinatura" required>
 
-<p><b>Assinatura do Cliente:</b></p>
-<input type="text" id="assinatura" required>
-
-<button type="submit">Gerar PDF</button>
+<button type="submit">Enviar Termo</button>
 
 </form>
 
-<!-- MODELO PDF -->
-<div id="pdfContent" style="display:none; padding:20px; font-family:Arial;">
+<!-- PDF -->
+<div id="pdf" style="display:none; padding:20px;">
 
-<h2 style="text-align:center;">📝 TERMO DE RESPONSABILIDADE E CONSENTIMENTO - MAQUIAGEM</h2>
+<h2>TERMO DE RESPONSABILIDADE</h2>
 
-<p><b>Nome:</b> <span id="pdf_nome"></span></p>
-<p><b>Data:</b> <span id="pdf_data"></span></p>
-<p><b>Hora:</b> <span id="pdf_hora"></span></p>
+<p><b>Nome:</b> <span id="p_nome"></span></p>
+<p><b>Data:</b> <span id="p_data"></span></p>
+<p><b>Hora:</b> <span id="p_hora"></span></p>
 
-<hr>
+<p><b>Alergias:</b> <span id="p_alergia"></span></p>
+<p><b>Imagem:</b> <span id="p_imagem"></span></p>
 
-<p><b>Agendamento e Pontualidade</b></p>
-<p>O cliente declara estar ciente de comparecer no horário.</p>
+<p><b>Confirmações:</b></p>
+<ul id="p_checks"></ul>
 
-<hr>
-
-<p><b>Saúde e Condições da Pele</b></p>
-<p id="pdf_alergia"></p>
-
-<hr>
-
-<p><b>Consentimento de Imagem:</b> <span id="pdf_imagem"></span></p>
-
-<hr>
-
-<p><b>Assinatura:</b></p>
-<p id="pdf_assinatura"></p>
+<p><b>Assinatura:</b> <span id="p_assinatura"></span></p>
 
 </div>
 
 <script>
-document.getElementById("form").addEventListener("submit", function(e) {
-  e.preventDefault();
+document.getElementById("form").addEventListener("submit", function(e){
+e.preventDefault();
 
-  const nomeEl = document.getElementById("nome");
-  const dataEl = document.getElementById("data");
-  const horaEl = document.getElementById("hora");
-  const assinaturaEl = document.getElementById("assinatura");
-  const alergiaEl = document.getElementById("alergia");
+const nome = document.getElementById("nome").value;
+const data = document.getElementById("data").value;
+const hora = document.getElementById("hora").value;
+const alergia = document.getElementById("alergia").value;
+const assinatura = document.getElementById("assinatura").value;
+const imagem = document.querySelector('input[name="imagem"]:checked');
+const checks = document.querySelectorAll(".check");
 
-  const nome = nomeEl.value.trim();
-  const data = dataEl.value;
-  const hora = horaEl.value;
-  const assinatura = assinaturaEl.value.trim();
-  const alergia = alergiaEl.value;
+if(!imagem){ alert("Selecione imagem"); return; }
 
-  const imagem = document.querySelector('input[name="imagem"]:checked');
-  const isencao = document.getElementById("isencao").checked;
+let ok = true;
+checks.forEach(c=>{ if(!c.checked) ok=false; });
+if(!ok){ alert("Aceite todas as confirmações"); return; }
 
-  if (!nome || !data || !hora || !assinatura) {
-    alert("Preencha todos os campos.");
-    return;
-  }
+// preencher PDF
+p_nome.innerText = nome;
+p_data.innerText = data;
+p_hora.innerText = hora;
+p_alergia.innerText = alergia || "Nenhuma";
+p_imagem.innerText = imagem.value;
+p_assinatura.innerText = assinatura;
 
-  if (!imagem) {
-    alert("Selecione autorização de imagem.");
-    return;
-  }
+// lista checks
+p_checks.innerHTML = "";
+checks.forEach(c=>{
+let li = document.createElement("li");
+li.innerText = c.parentElement.innerText;
+p_checks.appendChild(li);
+});
 
-  if (!isencao) {
-    alert("Aceite a isenção.");
-    return;
-  }
+const element = document.getElementById("pdf");
+element.style.display = "block";
 
-  // Preencher PDF
-  document.getElementById("pdf_nome").innerText = nome;
-  document.getElementById("pdf_data").innerText = data;
-  document.getElementById("pdf_hora").innerText = hora;
-  document.getElementById("pdf_alergia").innerText = alergia || "Nenhuma";
-  document.getElementById("pdf_imagem").innerText = imagem.value;
-  document.getElementById("pdf_assinatura").innerText = assinatura;
+html2pdf().from(element).save("termo.pdf");
 
-  const element = document.getElementById("pdfContent");
-  element.style.display = "block";
+element.style.display = "none";
 
-  html2pdf().set({
-    margin: 10,
-    filename: "termo.pdf",
-    html2canvas: { scale: 2 },
-    jsPDF: { unit: "mm", format: "a4", orientation: "portrait" }
-  }).from(element).save().then(() => {
-    element.style.display = "none";
-  });
+// abrir whatsapp
+const numero = "5531SEUNUMERO"; // coloca seu número
+
+const msg = `Novo termo de ${nome}`;
+
+window.open(`https://wa.me/${numero}?text=${encodeURIComponent(msg)}`, "_blank");
 
 });
 </script>
