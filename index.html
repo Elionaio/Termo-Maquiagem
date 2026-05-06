@@ -58,56 +58,30 @@ button {
 
 <form id="form">
 
-<p><b>Identificação do Cliente:</b></p>
-<input type="text" id="nome" required>
+<p><b>Identificação do Cliente:</b> <span id="p_nome"></span></p>
 
-<div class="row">
-  <div>
-    <b>Data do Atendimento:</b>
-    <input type="date" id="data" required>
-  </div>
-  <div>
-    <b>Hora:</b>
-    <input type="time" id="hora" required>
-  </div>
-</div>
+<p><b>Data do Atendimento:</b> <span id="p_data"></span> &nbsp;&nbsp; <b>Hora:</b> <span id="p_hora"></span></p>
 
 <hr>
 
-<p><b>Sobre o Atendimento</b></p>
+<p><b>Saúde e Condições da Pele (Anamnese)</b></p>
+
 <p>
-Este termo tem como objetivo garantir um atendimento seguro e transparente.
-Caso exista qualquer alergia, sensibilidade ou condição de pele, informe abaixo.
+Declaro que fui informado(a) sobre a necessidade de informar alergias a cosméticos (talco, conservantes, fragrâncias etc.).
+Declaro que NÃO possuo, ou informei abaixo, alergias, sensibilidades, doenças de pele ativas (acne severa, herpes, dermatite), ou uso de medicamentos fortes (ex: Roacutan).
 </p>
 
-<p><b>Observações / Alergias:</b></p>
-<textarea id="alergia"></textarea>
-
-<div class="check-group">
-  <label><input type="checkbox" class="check"> Confirmo que informei corretamente minhas condições de pele</label>
-</div>
+<p><b>Campo de Observações / Alergias:</b></p>
+<p id="p_alergia"></p>
 
 <hr>
 
-<p><b>Agendamento e Pontualidade</b></p>
+<p><b>Responsabilidade do Cliente</b></p>
+
 <p>
-O cliente deve comparecer no horário agendado. Em caso de atraso, o atendimento poderá ser ajustado.
+Eu <b><span id="p_assinatura"></span></b> comprometo-me a higienizar meu rosto antes do atendimento, caso solicitado pela maquiadora.
+Caso haja reação alérgica durante ou após o atendimento, a responsabilidade é isenta à profissional, desde que os produtos utilizados tenham sido acordados ou previamente testados.
 </p>
-
-<div class="check-group">
-  <label><input type="checkbox" class="check"> Estou ciente das condições de horário</label>
-</div>
-
-<hr>
-
-<p><b>Procedimento</b></p>
-<p>
-Declaro estar ciente dos cuidados durante o procedimento e da possibilidade de reações leves.
-</p>
-
-<div class="check-group">
-  <label><input type="checkbox" class="check"> Estou ciente dos cuidados e possíveis reações</label>
-</div>
 
 <hr>
 
