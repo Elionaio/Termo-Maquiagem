@@ -63,8 +63,6 @@ canvas {
 </div>
 
 <p><b>Sobre o Atendimento</b></p>
-<p>Informe alergias ou condições de pele.</p>
-
 <textarea id="alergia"></textarea>
 
 <p><b>Imagem</b></p>
@@ -80,7 +78,7 @@ canvas {
   <label><input type="checkbox" class="check"> Estou ciente do procedimento</label>
 </div>
 
-<p><b>Assinatura (desenhe abaixo):</b></p>
+<p><b>Assinatura:</b></p>
 <canvas id="assinaturaCanvas"></canvas>
 <button type="button" onclick="limpar()">Limpar assinatura</button>
 
@@ -89,7 +87,7 @@ canvas {
 </form>
 
 <!-- PDF -->
-<div id="pdf" style="display:none; padding:30px; font-family:Arial;">
+<div id="pdf" style="display:none; padding:30px;">
 
 <h2 style="text-align:center;">TERMO DE CONSENTIMENTO</h2>
 
@@ -108,43 +106,67 @@ canvas {
 
 <hr>
 
-<p><b>Confirmações:</b></p>
 <ul id="p_checks"></ul>
 
 <hr>
 
-<p><b>Assinatura:</b></p>
 <img id="p_assinatura" style="width:200px;">
 
 </div>
 
 <script>
-// assinatura
+// ===== ASSINATURA CORRIGIDA =====
 const canvas = document.getElementById("assinaturaCanvas");
 const ctx = canvas.getContext("2d");
 
+function ajustarCanvas(){
+  const ratio = window.devicePixelRatio || 1;
+  canvas.width = canvas.offsetWidth * ratio;
+  canvas.height = canvas.offsetHeight * ratio;
+  ctx.scale(ratio, ratio);
+}
+
+ajustarCanvas();
+
 let desenhando = false;
 
-canvas.addEventListener("touchstart", () => desenhando = true);
-canvas.addEventListener("touchend", () => desenhando = false);
-canvas.addEventListener("touchmove", desenhar);
-
-function desenhar(e){
-  if(!desenhando) return;
+function getPos(e){
   const rect = canvas.getBoundingClientRect();
-  const x = e.touches[0].clientX - rect.left;
-  const y = e.touches[0].clientY - rect.top;
-
-  ctx.lineWidth = 2;
-  ctx.lineTo(x, y);
-  ctx.stroke();
+  return {
+    x: e.touches[0].clientX - rect.left,
+    y: e.touches[0].clientY - rect.top
+  };
 }
 
+canvas.addEventListener("touchstart", (e)=>{
+  desenhando = true;
+  const pos = getPos(e);
+  ctx.beginPath();
+  ctx.moveTo(pos.x, pos.y);
+});
+
+canvas.addEventListener("touchmove", (e)=>{
+  if(!desenhando) return;
+  const pos = getPos(e);
+
+  ctx.lineWidth = 2.5;
+  ctx.lineCap = "round";
+
+  ctx.lineTo(pos.x, pos.y);
+  ctx.stroke();
+});
+
+canvas.addEventListener("touchend", ()=>{
+  desenhando = false;
+});
+
+// limpar REAL
 function limpar(){
   ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.beginPath();
 }
 
-// submit
+// ===== SUBMIT =====
 document.getElementById("form").addEventListener("submit", async function(e){
 e.preventDefault();
 
@@ -162,10 +184,10 @@ let ok = true;
 checks.forEach(c=>{ if(!c.checked) ok=false; });
 if(!ok){ alert("Confirme tudo"); return; }
 
-// assinatura imagem
+// assinatura
 const assinaturaImg = canvas.toDataURL();
 
-// preencher PDF
+// preencher
 p_nome.innerText = nome;
 p_data.innerText = data;
 p_hora.innerText = hora;
@@ -180,7 +202,7 @@ checks.forEach(c=>{
   p_checks.appendChild(li);
 });
 
-// gerar PDF
+// PDF
 const element = document.getElementById("pdf");
 element.style.display = "block";
 
@@ -191,18 +213,16 @@ await worker.save();
 
 element.style.display = "none";
 
-// compartilhar automático
-const file = new File([pdfBlob], "termo.pdf", { type: "application/pdf" });
+// ===== WHATSAPP AUTOMÁTICO =====
+const numero = "5531999999999"; // SEU NÚMERO
 
-if (navigator.canShare && navigator.canShare({ files: [file] })) {
-  await navigator.share({
-    title: "Termo",
-    text: "Segue o termo preenchido",
-    files: [file]
-  });
-} else {
-  alert("PDF gerado, compartilhe manualmente.");
-}
+const mensagem = `Olá, segue meu termo preenchido:
+
+Nome: ${nome}
+Data: ${data}
+Hora: ${hora}`;
+
+window.open(`https://wa.me/${numero}?text=${encodeURIComponent(mensagem)}`, "_blank");
 
 });
 </script>
