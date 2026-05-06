@@ -12,7 +12,6 @@ body {
   max-width: 700px;
   margin: auto;
   padding: 20px;
-  color: #000;
 }
 
 h2 { text-align: center; }
@@ -27,14 +26,10 @@ input, textarea {
 textarea { height: 60px; }
 
 .row { display: flex; gap: 10px; }
-.row div { flex: 1; }
 
 .radio-group { display: flex; gap: 20px; margin-top: 10px; }
 
-.check-group label {
-  display: block;
-  margin-top: 8px;
-}
+.check-group label { display: block; margin-top: 8px; }
 
 button {
   margin-top: 15px;
@@ -45,94 +40,58 @@ button {
   border: none;
 }
 
-#btnShare {
-  display: none;
-  background: green;
+canvas {
+  border: 1px solid black;
+  width: 100%;
+  height: 150px;
+  margin-top: 10px;
 }
 </style>
 </head>
 
 <body>
 
-<h2>📝 TERMO DE RESPONSABILIDADE E CONSENTIMENTO - MAQUIAGEM</h2>
+<h2>📝 TERMO DE CONSENTIMENTO - MAQUIAGEM</h2>
 
 <form id="form">
 
-<p><b>Identificação do Cliente:</b></p>
-<input type="text" id="nome" required>
+<input type="text" id="nome" placeholder="Nome" required>
 
 <div class="row">
-  <div>
-    <b>Data do Atendimento:</b>
-    <input type="date" id="data" required>
-  </div>
-  <div>
-    <b>Hora:</b>
-    <input type="time" id="hora" required>
-  </div>
+  <input type="date" id="data" required>
+  <input type="time" id="hora" required>
 </div>
-
-<hr>
 
 <p><b>Sobre o Atendimento</b></p>
-<p>
-Este termo tem como objetivo garantir um atendimento seguro e transparente.
-Caso exista qualquer alergia, sensibilidade ou condição de pele, informe abaixo.
-</p>
+<p>Informe alergias ou condições de pele.</p>
 
-<p><b>Observações / Alergias:</b></p>
 <textarea id="alergia"></textarea>
 
-<div class="check-group">
-  <label><input type="checkbox" class="check"> Confirmo que informei corretamente minhas condições de pele</label>
-</div>
-
-<hr>
-
-<p><b>Agendamento e Pontualidade</b></p>
-<p>
-O cliente deve comparecer no horário agendado. Em caso de atraso, o atendimento poderá ser ajustado.
-</p>
-
-<div class="check-group">
-  <label><input type="checkbox" class="check"> Estou ciente das condições de horário</label>
-</div>
-
-<hr>
-
-<p><b>Procedimento</b></p>
-<p>
-Declaro estar ciente dos cuidados durante o procedimento e da possibilidade de reações leves.
-</p>
-
-<div class="check-group">
-  <label><input type="checkbox" class="check"> Estou ciente dos cuidados e possíveis reações</label>
-</div>
-
-<hr>
-
-<p><b>Consentimento de Imagem</b></p>
-
+<p><b>Imagem</b></p>
 <div class="radio-group">
   <label><input type="radio" name="imagem" value="Autoriza"> Autoriza</label>
   <label><input type="radio" name="imagem" value="Não autoriza"> Não autoriza</label>
 </div>
 
-<hr>
+<p><b>Confirmações</b></p>
+<div class="check-group">
+  <label><input type="checkbox" class="check"> Comparecerei no horário</label>
+  <label><input type="checkbox" class="check"> Informei alergias</label>
+  <label><input type="checkbox" class="check"> Estou ciente do procedimento</label>
+</div>
 
-<p><b>Assinatura do Cliente:</b></p>
-<input type="text" id="assinatura" required>
+<p><b>Assinatura (desenhe abaixo):</b></p>
+<canvas id="assinaturaCanvas"></canvas>
+<button type="button" onclick="limpar()">Limpar assinatura</button>
 
-<button type="submit">Gerar Termo</button>
+<button type="submit">Gerar e Enviar</button>
 
 </form>
 
-<button id="btnShare">📲 Compartilhar no WhatsApp</button>
-
 <!-- PDF -->
-<div id="pdf" style="display:none; padding:20px; font-family:Arial;">
+<div id="pdf" style="display:none; padding:30px; font-family:Arial;">
 
-<h2 style="text-align:center;">TERMO DE RESPONSABILIDADE E CONSENTIMENTO</h2>
+<h2 style="text-align:center;">TERMO DE CONSENTIMENTO</h2>
 
 <p><b>Nome:</b> <span id="p_nome"></span></p>
 <p><b>Data:</b> <span id="p_data"></span></p>
@@ -140,7 +99,7 @@ Declaro estar ciente dos cuidados durante o procedimento e da possibilidade de r
 
 <hr>
 
-<p><b>Observações:</b></p>
+<p><b>Alergias:</b></p>
 <p id="p_alergia"></p>
 
 <hr>
@@ -155,99 +114,94 @@ Declaro estar ciente dos cuidados durante o procedimento e da possibilidade de r
 <hr>
 
 <p><b>Assinatura:</b></p>
-<p id="p_assinatura"></p>
+<img id="p_assinatura" style="width:200px;">
 
 </div>
 
 <script>
-let pdfBlob = null;
+// assinatura
+const canvas = document.getElementById("assinaturaCanvas");
+const ctx = canvas.getContext("2d");
 
+let desenhando = false;
+
+canvas.addEventListener("touchstart", () => desenhando = true);
+canvas.addEventListener("touchend", () => desenhando = false);
+canvas.addEventListener("touchmove", desenhar);
+
+function desenhar(e){
+  if(!desenhando) return;
+  const rect = canvas.getBoundingClientRect();
+  const x = e.touches[0].clientX - rect.left;
+  const y = e.touches[0].clientY - rect.top;
+
+  ctx.lineWidth = 2;
+  ctx.lineTo(x, y);
+  ctx.stroke();
+}
+
+function limpar(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+}
+
+// submit
 document.getElementById("form").addEventListener("submit", async function(e){
 e.preventDefault();
 
-const nomeEl = document.getElementById("nome");
-const dataEl = document.getElementById("data");
-const horaEl = document.getElementById("hora");
-const assinaturaEl = document.getElementById("assinatura");
-const alergiaEl = document.getElementById("alergia");
-
-const nome = nomeEl.value.trim();
-const data = dataEl.value;
-const hora = horaEl.value;
-const assinatura = assinaturaEl.value.trim();
-const alergia = alergiaEl.value;
+const nome = document.getElementById("nome").value;
+const data = document.getElementById("data").value;
+const hora = document.getElementById("hora").value;
+const alergia = document.getElementById("alergia").value;
 
 const imagem = document.querySelector('input[name="imagem"]:checked');
 const checks = document.querySelectorAll(".check");
 
-if (!nome || !data || !hora || !assinatura) {
-  alert("Preencha todos os campos.");
-  return;
-}
-
-if (!imagem) {
-  alert("Selecione autorização de imagem.");
-  return;
-}
+if(!imagem){ alert("Selecione imagem"); return; }
 
 let ok = true;
-checks.forEach(c => { if (!c.checked) ok = false; });
+checks.forEach(c=>{ if(!c.checked) ok=false; });
+if(!ok){ alert("Confirme tudo"); return; }
 
-if (!ok) {
-  alert("Confirme todas as informações.");
-  return;
-}
+// assinatura imagem
+const assinaturaImg = canvas.toDataURL();
 
 // preencher PDF
-document.getElementById("p_nome").innerText = nome;
-document.getElementById("p_data").innerText = data;
-document.getElementById("p_hora").innerText = hora;
-document.getElementById("p_alergia").innerText = alergia || "Nenhuma";
-document.getElementById("p_imagem").innerText = imagem.value;
-document.getElementById("p_assinatura").innerText = assinatura;
+p_nome.innerText = nome;
+p_data.innerText = data;
+p_hora.innerText = hora;
+p_alergia.innerText = alergia || "Nenhuma";
+p_imagem.innerText = imagem.value;
+p_assinatura.src = assinaturaImg;
 
-const lista = document.getElementById("p_checks");
-lista.innerHTML = "";
-
-checks.forEach(c => {
-  const li = document.createElement("li");
-  li.innerText = c.parentElement.innerText.trim();
-  lista.appendChild(li);
+p_checks.innerHTML = "";
+checks.forEach(c=>{
+  let li = document.createElement("li");
+  li.innerText = c.parentElement.innerText;
+  p_checks.appendChild(li);
 });
 
+// gerar PDF
 const element = document.getElementById("pdf");
 element.style.display = "block";
 
 const worker = html2pdf().from(element).toPdf();
-
-pdfBlob = await worker.outputPdf("blob");
+const pdfBlob = await worker.outputPdf("blob");
 
 await worker.save();
 
 element.style.display = "none";
 
-document.getElementById("btnShare").style.display = "block";
-
-});
-
-// compartilhar
-document.getElementById("btnShare").addEventListener("click", async () => {
-
-if (!pdfBlob) {
-  alert("Gere o PDF primeiro.");
-  return;
-}
-
+// compartilhar automático
 const file = new File([pdfBlob], "termo.pdf", { type: "application/pdf" });
 
-if (navigator.share) {
+if (navigator.canShare && navigator.canShare({ files: [file] })) {
   await navigator.share({
-    title: "Termo de Maquiagem",
+    title: "Termo",
     text: "Segue o termo preenchido",
     files: [file]
   });
 } else {
-  alert("Seu celular não suporta compartilhamento direto.");
+  alert("PDF gerado, compartilhe manualmente.");
 }
 
 });
