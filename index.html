@@ -2,14 +2,12 @@
 <html lang="pt-br">
 <head>
 <meta charset="UTF-8">
-<title>Termo de Responsabilidade</title>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<title>Termo Interativo</title>
 
 <style>
 body{
   font-family: Arial;
-  max-width: 700px;
+  max-width: 750px;
   margin: auto;
   padding: 20px;
 }
@@ -30,6 +28,12 @@ button{
   color:white;
   border:none;
 }
+
+#termo{
+  margin-top:30px;
+  white-space:pre-wrap;
+  line-height:1.5;
+}
 </style>
 </head>
 
@@ -40,58 +44,26 @@ button{
 <label>Nome completo</label>
 <input type="text" id="nome" required>
 
-<div>
 <label>Data</label>
 <input type="date" id="data" required>
-</div>
 
-<div>
 <label>Hora</label>
 <input type="time" id="hora" required>
-</div>
 
-<textarea id="alergias" placeholder="Observações"></textarea>
+<label>Observações</label>
+<textarea id="alergias"></textarea>
 
-<input type="text" id="nome2" placeholder="Nome novamente" required>
+<label>Nome novamente</label>
+<input type="text" id="nome2" required>
 
 <label><input type="radio" name="img" value="Autorizo" required> Autorizo</label>
 <label><input type="radio" name="img" value="NÃO autorizo"> NÃO autorizo</label>
 
-<button type="submit">Gerar PDF</button>
+<button type="submit">Gerar termo</button>
 
 </form>
 
-<div id="pdf" style="display:none; white-space:pre-wrap; font-family:Arial; padding:20px;">
-
-TERMODERESPONSABILIDADEECONSENTIMENTO-MAQUIAGEM
-IdentificaçãoCliente: <span id="p_nome"></span>
-__________________________________________________________________
-DatadoAtendimento: Hora:
-<span id="p_data"></span> <span id="p_hora"></span>
-____/_____/_____ _____:_____
-SaúdeeCondiçõesdaPele(Anamnese)
-Declaroquefuiinformado(a)sobreanecessidadedeinformarsobrealergiasa
-cosméticos(talco,conservantes,fragrâncias,etc.).DeclaroqueNÃOpossuo,ou
-informeiabaixo,alergias,sensibilidades,doençasdepeleativas(acnesevera,
-herpes,dermatite),ouusodemedicamentosfortes(ex:Roacutan).Campode
-Observações/Alergias:
-<span id="p_alergias"></span>
-______________________________________________________________________
-_____________________________
-ResponsabilidadedoCliente
-Eu <span id="p_nome2"></span> Comprometo-meahigienizarmeurostoantes
-doatendimento,casosolicitadopelamaquiadora.Casohajareaçãoalérgicadurante
-ouapósoatendimento,aresponsabilidadeéisentaàprofissional,desdequeos
-produtosutilizadostenhamsidoacordadosoupreviamentetestados.
-ConsentimentodeImagem
-(<span id="p_img"></span>)Autorizo()NÃOautorizoousodefotosevídeosdoresultadodamaquiagempara
-finsdeportfólioemredessociais.
-Assinatura:
-Li,entendieconcordocomostermos acima.
-AssinaturadoCliente:
-__________________________________________
-
-</div>
+<div id="termo"></div>
 
 <script>
 document.getElementById("form").addEventListener("submit", function(e){
@@ -109,20 +81,35 @@ document.getElementById("form").addEventListener("submit", function(e){
     return;
   }
 
-  document.getElementById("p_nome").innerText = nome;
-  document.getElementById("p_data").innerText = data;
-  document.getElementById("p_hora").innerText = hora;
-  document.getElementById("p_alergias").innerText = alergias;
-  document.getElementById("p_nome2").innerText = nome2;
-  document.getElementById("p_img").innerText = img.value;
-
-  const el = document.getElementById("pdf");
-  el.style.display = "block";
-
-  html2pdf().from(el).save("termo.pdf").then(() => {
-    el.style.display = "none";
-  });
-
+  document.getElementById("termo").innerText = `
+TERMODERESPONSABILIDADEECONSENTIMENTO-MAQUIAGEM
+IdentificaçãoCliente: ${nome}
+__________________________________________________________________
+DatadoAtendimento: Hora:
+${data} ${hora}
+____/_____/_____ _____:_____
+SaúdeeCondiçõesdaPele(Anamnese)
+Declaroquefuiinformado(a)sobreanecessidadedeinformarsobrealergiasa
+cosméticos(talco,conservantes,fragrâncias,etc.).DeclaroqueNÃOpossuo,ou
+informeiabaixo,alergias,sensibilidades,doençasdepeleativas(acnesevera,
+herpes,dermatite),ouusodemedicamentosfortes(ex:Roacutan).Campode
+Observações/Alergias:
+${alergias}
+______________________________________________________________________
+_____________________________
+ResponsabilidadedoCliente
+Eu ${nome2} Comprometo-meahigienizarmeurostoantes
+doatendimento,casosolicitadopelamaquiadora.Casohajareaçãoalérgicadurante
+ouapósoatendimento,aresponsabilidadeéisentaàprofissional,desdequeos
+produtosutilizadostenhamsidoacordadosoupreviamentetestados.
+ConsentimentodeImagem
+(${img.value})Autorizo()NÃOautorizoousodefotosevídeosdoresultadodamaquiagempara
+finsdeportfólioemredessociais.
+Assinatura:
+Li,entendieconcordocomostermos acima.
+AssinaturadoCliente:
+__________________________________________
+`;
 });
 </script>
 
