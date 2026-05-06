@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <title>Termo de Responsabilidade</title>
 
-<script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
 <style>
   body {
@@ -47,20 +47,8 @@
     margin-top: 10px;
   }
 
-  .radio-group label {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-  }
-
   .check-group {
     margin-top: 15px;
-  }
-
-  .check-group label {
-    display: flex;
-    align-items: flex-start;
-    gap: 8px;
   }
 
   button {
@@ -85,63 +73,38 @@
 <form id="form">
 
 <p><b>Identificação do Cliente:</b></p>
-<input type="text" name="nome" id="nome" required>
+<input type="text" id="nome" required>
 
 <br><br>
 
 <div class="row">
   <div>
     <b>Data do Atendimento:</b>
-    <input type="date" name="data" id="data" required>
+    <input type="date" id="data" required>
   </div>
   <div>
     <b>Hora:</b>
-    <input type="time" name="hora" id="hora" required>
+    <input type="time" id="hora" required>
   </div>
 </div>
 
 <hr>
 
 <p><b>Agendamento e Pontualidade</b></p>
-
-<p>
-O cliente declara estar ciente de que deve comparecer no horário agendado.
-Em caso de atraso, o atendimento poderá ser ajustado conforme disponibilidade.
-</p>
+<p>O cliente declara estar ciente de que deve comparecer no horário agendado.</p>
 
 <hr>
-
-<p><b>Saúde e Condições da Pele (Anamnese)</b></p>
-
-<p>
-Declaro que fui orientado(a) a informar qualquer alergia, sensibilidade,
-doença de pele ou uso de medicamentos.
-</p>
 
 <p><b>Observações / Alergias:</b></p>
-<textarea name="alergia" id="alergia"></textarea>
-
-<hr>
-
-<p><b>Responsabilidade do Cliente</b></p>
-
-<p>
-Eu <input type="text" name="nome2" id="nome2" style="width:200px; display:inline-block;"> 
-declaro que as informações fornecidas são verdadeiras.
-</p>
+<textarea id="alergia"></textarea>
 
 <hr>
 
 <p><b>Consentimento de Imagem</b></p>
 
 <div class="radio-group">
-  <label>
-    <input type="radio" name="imagem" value="Autoriza"> Autoriza
-  </label>
-
-  <label>
-    <input type="radio" name="imagem" value="Não autoriza"> Não autoriza
-  </label>
+  <label><input type="radio" name="imagem" value="Autoriza"> Autoriza</label>
+  <label><input type="radio" name="imagem" value="Não autoriza"> Não autoriza</label>
 </div>
 
 <hr>
@@ -151,62 +114,85 @@ declaro que as informações fornecidas são verdadeiras.
 <div class="check-group">
   <label>
     <input type="checkbox" id="isencao">
-    Declaro que fui previamente informado(a) sobre possíveis reações ou intercorrências
-    e isento a profissional de qualquer responsabilidade decorrente de informações omitidas
-    ou condições previamente existentes.
+    Declaro que fui informado(a) e isento a profissional de responsabilidade.
   </label>
 </div>
 
 <hr>
 
 <p><b>Assinatura do Cliente:</b></p>
-<input type="text" name="assinatura" id="assinatura" required>
+<input type="text" id="assinatura" required>
 
-<button type="submit">Enviar Termo</button>
+<button type="submit">Gerar PDF</button>
 
 </form>
 
-<script>
-(function(){
-  emailjs.init("SUA_PUBLIC_KEY");
-})();
+<!-- MODELO DO PDF -->
+<div id="pdfContent" style="display:none; padding:20px; font-family:Arial;">
 
+<h2 style="text-align:center;">📝 TERMO DE RESPONSABILIDADE E CONSENTIMENTO - MAQUIAGEM</h2>
+
+<p><b>Nome:</b> <span id="pdf_nome"></span></p>
+<p><b>Data:</b> <span id="pdf_data"></span></p>
+<p><b>Hora:</b> <span id="pdf_hora"></span></p>
+
+<hr>
+
+<p><b>Observações / Alergias:</b></p>
+<p id="pdf_alergia"></p>
+
+<hr>
+
+<p><b>Consentimento de Imagem:</b> <span id="pdf_imagem"></span></p>
+
+<hr>
+
+<p><b>Assinatura:</b></p>
+<p id="pdf_assinatura"></p>
+
+</div>
+
+<script>
 document.getElementById("form").addEventListener("submit", function(e) {
   e.preventDefault();
 
-  // Validação manual
-  const nome = document.getElementById("nome").value.trim();
-  const data = document.getElementById("data").value;
-  const hora = document.getElementById("hora").value;
-  const assinatura = document.getElementById("assinatura").value.trim();
+  const nome = nome.value.trim();
+  const data = data.value;
+  const hora = hora.value;
+  const alergia = document.getElementById("alergia").value;
+  const assinatura = assinatura.value.trim();
   const imagem = document.querySelector('input[name="imagem"]:checked');
   const isencao = document.getElementById("isencao").checked;
 
   if (!nome || !data || !hora || !assinatura) {
-    alert("Preencha todos os campos obrigatórios.");
+    alert("Preencha todos os campos.");
     return;
   }
 
   if (!imagem) {
-    alert("Selecione a autorização de imagem.");
+    alert("Selecione autorização de imagem.");
     return;
   }
 
   if (!isencao) {
-    alert("Você precisa aceitar a isenção de responsabilidade.");
+    alert("Aceite a isenção.");
     return;
   }
 
-  emailjs.sendForm(
-    "SEU_SERVICE_ID",
-    "SEU_TEMPLATE_ID",
-    this
-  )
-  .then(function() {
-    alert("Termo enviado com sucesso!");
-  }, function(error) {
-    alert("Erro: " + JSON.stringify(error));
-  });
+  // Preencher PDF
+  document.getElementById("pdf_nome").innerText = nome;
+  document.getElementById("pdf_data").innerText = data;
+  document.getElementById("pdf_hora").innerText = hora;
+  document.getElementById("pdf_alergia").innerText = alergia || "Nenhuma";
+  document.getElementById("pdf_imagem").innerText = imagem.value;
+  document.getElementById("pdf_assinatura").innerText = assinatura;
+
+  const element = document.getElementById("pdfContent");
+  element.style.display = "block";
+
+  html2pdf().from(element).save("termo.pdf");
+
+  element.style.display = "none";
 });
 </script>
 
