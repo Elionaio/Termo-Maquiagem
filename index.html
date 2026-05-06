@@ -12,7 +12,6 @@ body {
   max-width: 700px;
   margin: auto;
   padding: 20px;
-  color: #000;
 }
 
 h2 { text-align: center; }
@@ -31,15 +30,13 @@ textarea { height: 60px; }
 
 .radio-group { display: flex; gap: 20px; margin-top: 10px; }
 
-.check-group { margin-top: 10px; }
-
 .check-group label {
   display: block;
   margin-top: 8px;
 }
 
 button {
-  margin-top: 20px;
+  margin-top: 15px;
   padding: 10px;
   width: 100%;
   background: black;
@@ -47,87 +44,59 @@ button {
   border: none;
 }
 
-hr { margin: 20px 0; }
+#btnShare {
+  display: none;
+  background: green;
+}
 </style>
 </head>
 
 <body>
 
-<h2>📝 TERMO DE RESPONSABILIDADE E CONSENTIMENTO - MAQUIAGEM</h2>
+<h2>📝 TERMO DE CONSENTIMENTO - MAQUIAGEM</h2>
 
 <form id="form">
 
-<p><b>Identificação do Cliente:</b></p>
-<input type="text" id="nome" required>
-
-<br><br>
+<input type="text" id="nome" placeholder="Nome" required>
 
 <div class="row">
-  <div>
-    <b>Data:</b>
-    <input type="date" id="data" required>
-  </div>
-  <div>
-    <b>Hora:</b>
-    <input type="time" id="hora" required>
-  </div>
+  <div><input type="date" id="data" required></div>
+  <div><input type="time" id="hora" required></div>
 </div>
 
-<hr>
-
-<p><b>Agendamento e Pontualidade</b></p>
+<p><b>Sobre o Atendimento</b></p>
 <p>
-O cliente declara estar ciente de comparecer no horário agendado.
+Este termo garante um atendimento seguro e transparente. 
+Caso tenha alguma alergia ou sensibilidade, informe abaixo.
 </p>
 
-<div class="check-group">
-  <label><input type="checkbox" class="check"> Confirmo comparecimento no horário</label>
-</div>
+<textarea id="alergia" placeholder="Alergias ou observações"></textarea>
 
-<hr>
-
-<p><b>Saúde e Condições da Pele</b></p>
-<p>
-Declaro que informei todas as alergias e condições.
-</p>
-
-<textarea id="alergia"></textarea>
-
-<div class="check-group">
-  <label><input type="checkbox" class="check"> Informei corretamente minhas condições</label>
-</div>
-
-<hr>
-
-<p><b>Responsabilidade</b></p>
-
-<div class="check-group">
-  <label><input type="checkbox" class="check"> Estou ciente dos riscos</label>
-  <label><input type="checkbox" class="check"> Isento a profissional de responsabilidade</label>
-</div>
-
-<hr>
-
-<p><b>Consentimento de Imagem</b></p>
-
+<p><b>Uso de Imagem</b></p>
 <div class="radio-group">
   <label><input type="radio" name="imagem" value="Autoriza"> Autoriza</label>
   <label><input type="radio" name="imagem" value="Não autoriza"> Não autoriza</label>
 </div>
 
-<hr>
+<p><b>Confirmações</b></p>
+<div class="check-group">
+  <label><input type="checkbox" class="check"> Confirmo presença no horário</label>
+  <label><input type="checkbox" class="check"> Informei possíveis alergias</label>
+  <label><input type="checkbox" class="check"> Estou ciente do procedimento</label>
+</div>
 
-<p><b>Assinatura:</b></p>
-<input type="text" id="assinatura" required>
+<input type="text" id="assinatura" placeholder="Assinatura" required>
 
-<button type="submit">Enviar Termo</button>
+<button type="submit">Gerar Termo</button>
 
 </form>
+
+<button id="btnShare">📲 Compartilhar no WhatsApp</button>
 
 <!-- PDF -->
 <div id="pdf" style="display:none; padding:20px;">
 
-<h2>TERMO DE RESPONSABILIDADE</h2>
+<h2>TERMO DE CONSENTIMENTO - MAQUIAGEM</h2>
 
 <p><b>Nome:</b> <span id="p_nome"></span></p>
 <p><b>Data:</b> <span id="p_data"></span></p>
@@ -144,27 +113,25 @@ Declaro que informei todas as alergias e condições.
 </div>
 
 <script>
-document.getElementById("form").addEventListener("submit", function(e){
+let pdfBlob = null;
+
+document.getElementById("form").addEventListener("submit", async function(e){
 e.preventDefault();
 
-const nome = document.getElementById("nome").value;
-const data = document.getElementById("data").value;
-const hora = document.getElementById("hora").value;
+const nome = nome.value;
+const data = data.value;
+const hora = hora.value;
 const alergia = document.getElementById("alergia").value;
-const assinatura = document.getElementById("assinatura").value;
-
+const assinatura = assinatura.value;
 const imagem = document.querySelector('input[name="imagem"]:checked');
 const checks = document.querySelectorAll(".check");
 
-if(!imagem){ alert("Selecione autorização de imagem"); return; }
+if(!imagem){ alert("Selecione uso de imagem"); return; }
 
 let ok = true;
 checks.forEach(c=>{ if(!c.checked) ok=false; });
 
-if(!ok){
-  alert("Você precisa aceitar todas as confirmações.");
-  return;
-}
+if(!ok){ alert("Marque todas as confirmações"); return; }
 
 // preencher PDF
 p_nome.innerText = nome;
@@ -184,16 +151,45 @@ checks.forEach(c=>{
 const element = document.getElementById("pdf");
 element.style.display = "block";
 
-html2pdf().from(element).save("termo.pdf");
+const opt = {
+  margin: 10,
+  filename: "termo.pdf",
+  html2canvas: { scale: 2 },
+  jsPDF: { unit: "mm", format: "a4" }
+};
+
+const worker = html2pdf().set(opt).from(element).toPdf();
+
+pdfBlob = await worker.outputPdf("blob");
+
+worker.save();
 
 element.style.display = "none";
 
-// ⚠️ COLOCA SEU NÚMERO CERTO AQUI
-const numero = "5531996362001";
+// mostrar botão compartilhar
+document.getElementById("btnShare").style.display = "block";
 
-const msg = `Novo termo preenchido - ${nome}`;
+});
 
-window.open(`https://wa.me/${numero}?text=${encodeURIComponent(msg)}`, "_blank");
+// compartilhar
+document.getElementById("btnShare").addEventListener("click", async () => {
+
+if(!pdfBlob){
+  alert("Gere o PDF primeiro");
+  return;
+}
+
+const file = new File([pdfBlob], "termo.pdf", { type: "application/pdf" });
+
+if (navigator.share) {
+  await navigator.share({
+    title: "Termo de Maquiagem",
+    text: "Segue o termo preenchido",
+    files: [file]
+  });
+} else {
+  alert("Seu celular não suporta compartilhamento direto.");
+}
 
 });
 </script>
