@@ -12,6 +12,7 @@ body {
   max-width: 700px;
   margin: auto;
   padding: 20px;
+  color: #000;
 }
 
 h2 { text-align: center; }
@@ -30,6 +31,8 @@ textarea { height: 60px; }
 
 .radio-group { display: flex; gap: 20px; margin-top: 10px; }
 
+.check-group { margin-top: 10px; }
+
 .check-group label {
   display: block;
   margin-top: 8px;
@@ -43,40 +46,79 @@ button {
   color: white;
   border: none;
 }
+
+hr { margin: 20px 0; }
 </style>
 </head>
 
 <body>
 
-<h2>📝 TERMO DE RESPONSABILIDADE - MAQUIAGEM</h2>
+<h2>📝 TERMO DE RESPONSABILIDADE E CONSENTIMENTO - MAQUIAGEM</h2>
 
 <form id="form">
 
-<input type="text" id="nome" placeholder="Nome" required>
+<p><b>Identificação do Cliente:</b></p>
+<input type="text" id="nome" required>
+
+<br><br>
 
 <div class="row">
-  <div><input type="date" id="data" required></div>
-  <div><input type="time" id="hora" required></div>
+  <div>
+    <b>Data:</b>
+    <input type="date" id="data" required>
+  </div>
+  <div>
+    <b>Hora:</b>
+    <input type="time" id="hora" required>
+  </div>
 </div>
 
-<textarea id="alergia" placeholder="Alergias"></textarea>
+<hr>
 
-<p><b>Imagem</b></p>
+<p><b>Agendamento e Pontualidade</b></p>
+<p>
+O cliente declara estar ciente de comparecer no horário agendado.
+</p>
+
+<div class="check-group">
+  <label><input type="checkbox" class="check"> Confirmo comparecimento no horário</label>
+</div>
+
+<hr>
+
+<p><b>Saúde e Condições da Pele</b></p>
+<p>
+Declaro que informei todas as alergias e condições.
+</p>
+
+<textarea id="alergia"></textarea>
+
+<div class="check-group">
+  <label><input type="checkbox" class="check"> Informei corretamente minhas condições</label>
+</div>
+
+<hr>
+
+<p><b>Responsabilidade</b></p>
+
+<div class="check-group">
+  <label><input type="checkbox" class="check"> Estou ciente dos riscos</label>
+  <label><input type="checkbox" class="check"> Isento a profissional de responsabilidade</label>
+</div>
+
+<hr>
+
+<p><b>Consentimento de Imagem</b></p>
+
 <div class="radio-group">
   <label><input type="radio" name="imagem" value="Autoriza"> Autoriza</label>
   <label><input type="radio" name="imagem" value="Não autoriza"> Não autoriza</label>
 </div>
 
-<p><b>Confirmações</b></p>
-<div class="check-group">
-  <label><input type="checkbox" class="check"> Comparecerei no horário</label>
-  <label><input type="checkbox" class="check"> Informei alergias</label>
-  <label><input type="checkbox" class="check"> Ciente de riscos</label>
-  <label><input type="checkbox" class="check"> Autorizo procedimento</label>
-  <label><input type="checkbox" class="check"> Isento profissional</label>
-</div>
+<hr>
 
-<input type="text" id="assinatura" placeholder="Assinatura" required>
+<p><b>Assinatura:</b></p>
+<input type="text" id="assinatura" required>
 
 <button type="submit">Enviar Termo</button>
 
@@ -110,14 +152,19 @@ const data = document.getElementById("data").value;
 const hora = document.getElementById("hora").value;
 const alergia = document.getElementById("alergia").value;
 const assinatura = document.getElementById("assinatura").value;
+
 const imagem = document.querySelector('input[name="imagem"]:checked');
 const checks = document.querySelectorAll(".check");
 
-if(!imagem){ alert("Selecione imagem"); return; }
+if(!imagem){ alert("Selecione autorização de imagem"); return; }
 
 let ok = true;
 checks.forEach(c=>{ if(!c.checked) ok=false; });
-if(!ok){ alert("Aceite todas as confirmações"); return; }
+
+if(!ok){
+  alert("Você precisa aceitar todas as confirmações.");
+  return;
+}
 
 // preencher PDF
 p_nome.innerText = nome;
@@ -127,12 +174,11 @@ p_alergia.innerText = alergia || "Nenhuma";
 p_imagem.innerText = imagem.value;
 p_assinatura.innerText = assinatura;
 
-// lista checks
 p_checks.innerHTML = "";
 checks.forEach(c=>{
-let li = document.createElement("li");
-li.innerText = c.parentElement.innerText;
-p_checks.appendChild(li);
+  let li = document.createElement("li");
+  li.innerText = c.parentElement.innerText;
+  p_checks.appendChild(li);
 });
 
 const element = document.getElementById("pdf");
@@ -142,10 +188,10 @@ html2pdf().from(element).save("termo.pdf");
 
 element.style.display = "none";
 
-// abrir whatsapp
-const numero = "5531SEUNUMERO"; // coloca seu número
+// ⚠️ COLOCA SEU NÚMERO CERTO AQUI
+const numero = "5531996362001";
 
-const msg = `Novo termo de ${nome}`;
+const msg = `Novo termo preenchido - ${nome}`;
 
 window.open(`https://wa.me/${numero}?text=${encodeURIComponent(msg)}`, "_blank");
 
