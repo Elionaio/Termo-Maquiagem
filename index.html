@@ -1,77 +1,153 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
-  <title>Termo de Responsabilidade</title>
+<meta charset="UTF-8">
+<title>Termo de Responsabilidade</title>
 
-  <!-- EmailJS -->
-  <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
 
-  <style>
-    body {
-      font-family: Arial;
-      max-width: 600px;
-      margin: auto;
-      color: #000;
-    }
-    input, textarea {
-      width: 100%;
-      margin-bottom: 10px;
-      padding: 8px;
-    }
-    button {
-      padding: 10px;
-      background: black;
-      color: white;
-      border: none;
-      cursor: pointer;
-    }
-  </style>
+<style>
+  body {
+    font-family: Arial;
+    max-width: 700px;
+    margin: auto;
+    padding: 20px;
+    color: #000;
+  }
+
+  h2 {
+    text-align: center;
+  }
+
+  .linha {
+    border-bottom: 1px solid black;
+    display: inline-block;
+    min-width: 200px;
+  }
+
+  input, textarea {
+    border: none;
+    border-bottom: 1px solid black;
+    width: 100%;
+    font-size: 14px;
+    margin-top: 5px;
+  }
+
+  textarea {
+    height: 60px;
+    resize: none;
+  }
+
+  .row {
+    display: flex;
+    gap: 10px;
+  }
+
+  .row div {
+    flex: 1;
+  }
+
+  .checkbox {
+    margin-top: 10px;
+  }
+
+  button {
+    margin-top: 20px;
+    padding: 10px;
+    width: 100%;
+    background: black;
+    color: white;
+    border: none;
+  }
+</style>
 </head>
+
 <body>
 
-  <h2>📝 Termo de Responsabilidade - Maquiagem</h2>
-  <hr>
+<h2>📝 TERMO DE RESPONSABILIDADE E CONSENTIMENTO - MAQUIAGEM</h2>
 
-  <form id="form">
+<form id="form">
 
-    <label>Nome:</label>
-    <input type="text" name="nome" required>
+<p><b>Identificação do Cliente:</b></p>
+<input type="text" name="nome" required>
 
-    <label>Data:</label>
+<br><br>
+
+<div class="row">
+  <div>
+    <b>Data:</b>
     <input type="date" name="data" required>
+  </div>
+  <div>
+    <b>Hora:</b>
+    <input type="time" name="hora" required>
+  </div>
+</div>
 
-    <label>Alergia:</label>
-    <textarea name="alergia" placeholder="Descreva ou escreva 'Nenhuma'"></textarea>
+<br>
 
-    <p>
-      Declaro que estou ciente dos procedimentos e autorizo o serviço de maquiagem.
-    </p>
+<p><b>Saúde e Condições da Pele (Anamnese)</b></p>
 
-    <button type="submit">Enviar Termo</button>
+<p>
+Declaro que fui informado(a) sobre a necessidade de informar sobre alergias a cosméticos,
+doenças de pele ou uso de medicamentos.
+</p>
 
-  </form>
+<p><b>Observações / Alergias:</b></p>
+<textarea name="alergia"></textarea>
 
-  <script>
-    (function(){
-      emailjs.init("SUA_PUBLIC_KEY"); // <-- coloca aqui
-    })();
+<br>
 
-    document.getElementById("form").addEventListener("submit", function(e) {
-      e.preventDefault();
+<p><b>Responsabilidade do Cliente</b></p>
 
-      emailjs.sendForm(
-        "SEU_SERVICE_ID",   // <-- aqui
-        "SEU_TEMPLATE_ID",  // <-- aqui
-        this
-      )
-      .then(function() {
-        alert("Termo enviado com sucesso!");
-      }, function(error) {
-        alert("Erro ao enviar: " + JSON.stringify(error));
-      });
-    });
-  </script>
+<p>
+Eu <input type="text" name="nome2" style="width:200px; display:inline-block;"> 
+comprometo-me a higienizar meu rosto antes do atendimento, caso solicitado.
+</p>
+
+<p>
+Estou ciente de que em caso de reação alérgica, a responsabilidade é isenta à profissional,
+desde que os produtos tenham sido previamente acordados.
+</p>
+
+<br>
+
+<p><b>Consentimento de Imagem</b></p>
+
+<div class="checkbox">
+  <input type="radio" name="imagem" value="Autoriza"> Autorizo
+  <input type="radio" name="imagem" value="Não autoriza"> Não autorizo
+</div>
+
+<br><br>
+
+<p><b>Assinatura do Cliente:</b></p>
+<input type="text" name="assinatura">
+
+<button type="submit">Enviar Termo</button>
+
+</form>
+
+<script>
+(function(){
+  emailjs.init("SUA_PUBLIC_KEY");
+})();
+
+document.getElementById("form").addEventListener("submit", function(e) {
+  e.preventDefault();
+
+  emailjs.sendForm(
+    "SEU_SERVICE_ID",
+    "SEU_TEMPLATE_ID",
+    this
+  )
+  .then(function() {
+    alert("Termo enviado com sucesso!");
+  }, function(error) {
+    alert("Erro: " + JSON.stringify(error));
+  });
+});
+</script>
 
 </body>
 </html>
