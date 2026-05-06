@@ -12,6 +12,7 @@ body {
   max-width: 700px;
   margin: auto;
   padding: 20px;
+  color: #000;
 }
 
 h2 { text-align: center; }
@@ -53,39 +54,74 @@ button {
 
 <body>
 
-<h2>📝 TERMO DE CONSENTIMENTO - MAQUIAGEM</h2>
+<h2>📝 TERMO DE RESPONSABILIDADE E CONSENTIMENTO - MAQUIAGEM</h2>
 
 <form id="form">
 
-<input type="text" id="nome" placeholder="Nome" required>
+<p><b>Identificação do Cliente:</b></p>
+<input type="text" id="nome" required>
 
 <div class="row">
-  <div><input type="date" id="data" required></div>
-  <div><input type="time" id="hora" required></div>
+  <div>
+    <b>Data do Atendimento:</b>
+    <input type="date" id="data" required>
+  </div>
+  <div>
+    <b>Hora:</b>
+    <input type="time" id="hora" required>
+  </div>
 </div>
+
+<hr>
 
 <p><b>Sobre o Atendimento</b></p>
 <p>
-Este termo garante um atendimento seguro e transparente. 
-Caso tenha alguma alergia ou sensibilidade, informe abaixo.
+Este termo tem como objetivo garantir um atendimento seguro e transparente.
+Caso exista qualquer alergia, sensibilidade ou condição de pele, informe abaixo.
 </p>
 
-<textarea id="alergia" placeholder="Alergias ou observações"></textarea>
+<p><b>Observações / Alergias:</b></p>
+<textarea id="alergia"></textarea>
 
-<p><b>Uso de Imagem</b></p>
+<div class="check-group">
+  <label><input type="checkbox" class="check"> Confirmo que informei corretamente minhas condições de pele</label>
+</div>
+
+<hr>
+
+<p><b>Agendamento e Pontualidade</b></p>
+<p>
+O cliente deve comparecer no horário agendado. Em caso de atraso, o atendimento poderá ser ajustado.
+</p>
+
+<div class="check-group">
+  <label><input type="checkbox" class="check"> Estou ciente das condições de horário</label>
+</div>
+
+<hr>
+
+<p><b>Procedimento</b></p>
+<p>
+Declaro estar ciente dos cuidados durante o procedimento e da possibilidade de reações leves.
+</p>
+
+<div class="check-group">
+  <label><input type="checkbox" class="check"> Estou ciente dos cuidados e possíveis reações</label>
+</div>
+
+<hr>
+
+<p><b>Consentimento de Imagem</b></p>
+
 <div class="radio-group">
   <label><input type="radio" name="imagem" value="Autoriza"> Autoriza</label>
   <label><input type="radio" name="imagem" value="Não autoriza"> Não autoriza</label>
 </div>
 
-<p><b>Confirmações</b></p>
-<div class="check-group">
-  <label><input type="checkbox" class="check"> Confirmo presença no horário</label>
-  <label><input type="checkbox" class="check"> Informei possíveis alergias</label>
-  <label><input type="checkbox" class="check"> Estou ciente do procedimento</label>
-</div>
+<hr>
 
-<input type="text" id="assinatura" placeholder="Assinatura" required>
+<p><b>Assinatura do Cliente:</b></p>
+<input type="text" id="assinatura" required>
 
 <button type="submit">Gerar Termo</button>
 
@@ -94,21 +130,32 @@ Caso tenha alguma alergia ou sensibilidade, informe abaixo.
 <button id="btnShare">📲 Compartilhar no WhatsApp</button>
 
 <!-- PDF -->
-<div id="pdf" style="display:none; padding:20px;">
+<div id="pdf" style="display:none; padding:20px; font-family:Arial;">
 
-<h2>TERMO DE CONSENTIMENTO - MAQUIAGEM</h2>
+<h2 style="text-align:center;">TERMO DE RESPONSABILIDADE E CONSENTIMENTO</h2>
 
 <p><b>Nome:</b> <span id="p_nome"></span></p>
 <p><b>Data:</b> <span id="p_data"></span></p>
 <p><b>Hora:</b> <span id="p_hora"></span></p>
 
-<p><b>Alergias:</b> <span id="p_alergia"></span></p>
+<hr>
+
+<p><b>Observações:</b></p>
+<p id="p_alergia"></p>
+
+<hr>
+
 <p><b>Imagem:</b> <span id="p_imagem"></span></p>
+
+<hr>
 
 <p><b>Confirmações:</b></p>
 <ul id="p_checks"></ul>
 
-<p><b>Assinatura:</b> <span id="p_assinatura"></span></p>
+<hr>
+
+<p><b>Assinatura:</b></p>
+<p id="p_assinatura"></p>
 
 </div>
 
@@ -118,55 +165,67 @@ let pdfBlob = null;
 document.getElementById("form").addEventListener("submit", async function(e){
 e.preventDefault();
 
-const nome = nome.value;
-const data = data.value;
-const hora = hora.value;
-const alergia = document.getElementById("alergia").value;
-const assinatura = assinatura.value;
+const nomeEl = document.getElementById("nome");
+const dataEl = document.getElementById("data");
+const horaEl = document.getElementById("hora");
+const assinaturaEl = document.getElementById("assinatura");
+const alergiaEl = document.getElementById("alergia");
+
+const nome = nomeEl.value.trim();
+const data = dataEl.value;
+const hora = horaEl.value;
+const assinatura = assinaturaEl.value.trim();
+const alergia = alergiaEl.value;
+
 const imagem = document.querySelector('input[name="imagem"]:checked');
 const checks = document.querySelectorAll(".check");
 
-if(!imagem){ alert("Selecione uso de imagem"); return; }
+if (!nome || !data || !hora || !assinatura) {
+  alert("Preencha todos os campos.");
+  return;
+}
+
+if (!imagem) {
+  alert("Selecione autorização de imagem.");
+  return;
+}
 
 let ok = true;
-checks.forEach(c=>{ if(!c.checked) ok=false; });
+checks.forEach(c => { if (!c.checked) ok = false; });
 
-if(!ok){ alert("Marque todas as confirmações"); return; }
+if (!ok) {
+  alert("Confirme todas as informações.");
+  return;
+}
 
 // preencher PDF
-p_nome.innerText = nome;
-p_data.innerText = data;
-p_hora.innerText = hora;
-p_alergia.innerText = alergia || "Nenhuma";
-p_imagem.innerText = imagem.value;
-p_assinatura.innerText = assinatura;
+document.getElementById("p_nome").innerText = nome;
+document.getElementById("p_data").innerText = data;
+document.getElementById("p_hora").innerText = hora;
+document.getElementById("p_alergia").innerText = alergia || "Nenhuma";
+document.getElementById("p_imagem").innerText = imagem.value;
+document.getElementById("p_assinatura").innerText = assinatura;
 
-p_checks.innerHTML = "";
-checks.forEach(c=>{
-  let li = document.createElement("li");
-  li.innerText = c.parentElement.innerText;
-  p_checks.appendChild(li);
+const lista = document.getElementById("p_checks");
+lista.innerHTML = "";
+
+checks.forEach(c => {
+  const li = document.createElement("li");
+  li.innerText = c.parentElement.innerText.trim();
+  lista.appendChild(li);
 });
 
 const element = document.getElementById("pdf");
 element.style.display = "block";
 
-const opt = {
-  margin: 10,
-  filename: "termo.pdf",
-  html2canvas: { scale: 2 },
-  jsPDF: { unit: "mm", format: "a4" }
-};
-
-const worker = html2pdf().set(opt).from(element).toPdf();
+const worker = html2pdf().from(element).toPdf();
 
 pdfBlob = await worker.outputPdf("blob");
 
-worker.save();
+await worker.save();
 
 element.style.display = "none";
 
-// mostrar botão compartilhar
 document.getElementById("btnShare").style.display = "block";
 
 });
@@ -174,8 +233,8 @@ document.getElementById("btnShare").style.display = "block";
 // compartilhar
 document.getElementById("btnShare").addEventListener("click", async () => {
 
-if(!pdfBlob){
-  alert("Gere o PDF primeiro");
+if (!pdfBlob) {
+  alert("Gere o PDF primeiro.");
   return;
 }
 
