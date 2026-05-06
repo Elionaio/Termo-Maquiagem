@@ -53,6 +53,16 @@
     gap: 5px;
   }
 
+  .check-group {
+    margin-top: 15px;
+  }
+
+  .check-group label {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
   button {
     margin-top: 20px;
     padding: 10px;
@@ -75,18 +85,18 @@
 <form id="form">
 
 <p><b>Identificação do Cliente:</b></p>
-<input type="text" name="nome" required>
+<input type="text" name="nome" id="nome" required>
 
 <br><br>
 
 <div class="row">
   <div>
     <b>Data do Atendimento:</b>
-    <input type="date" name="data" required>
+    <input type="date" name="data" id="data" required>
   </div>
   <div>
     <b>Hora:</b>
-    <input type="time" name="hora" required>
+    <input type="time" name="hora" id="hora" required>
   </div>
 </div>
 
@@ -96,13 +106,7 @@
 
 <p>
 O cliente declara estar ciente de que deve comparecer no horário agendado.
-Em caso de atraso superior a 15 minutos, o atendimento poderá ser cancelado ou adaptado,
-sem garantia de execução completa do serviço.
-</p>
-
-<p>
-Cancelamentos devem ser feitos com no mínimo 24 horas de antecedência.
-A ausência sem aviso prévio poderá impedir novos agendamentos.
+Em caso de atraso, o atendimento poderá ser ajustado conforme disponibilidade.
 </p>
 
 <hr>
@@ -111,37 +115,28 @@ A ausência sem aviso prévio poderá impedir novos agendamentos.
 
 <p>
 Declaro que fui orientado(a) a informar qualquer alergia, sensibilidade,
-doença de pele ou uso de medicamentos que possam interferir no procedimento.
+doença de pele ou uso de medicamentos.
 </p>
 
 <p><b>Observações / Alergias:</b></p>
-<textarea name="alergia"></textarea>
+<textarea name="alergia" id="alergia"></textarea>
 
 <hr>
 
 <p><b>Responsabilidade do Cliente</b></p>
 
 <p>
-Eu <input type="text" name="nome2" style="width:200px; display:inline-block;"> 
-declaro que as informações fornecidas são verdadeiras e me comprometo a seguir as orientações da profissional.
-</p>
-
-<p>
-Estou ciente de que reações alérgicas podem ocorrer e isento a profissional de responsabilidade,
-desde que todos os produtos utilizados tenham sido previamente informados e acordados.
+Eu <input type="text" name="nome2" id="nome2" style="width:200px; display:inline-block;"> 
+declaro que as informações fornecidas são verdadeiras.
 </p>
 
 <hr>
 
 <p><b>Consentimento de Imagem</b></p>
 
-<p>
-Autorizo o uso da minha imagem para fins de divulgação profissional (redes sociais, portfólio, etc):
-</p>
-
 <div class="radio-group">
   <label>
-    <input type="radio" name="imagem" value="Autoriza" required> Autoriza
+    <input type="radio" name="imagem" value="Autoriza"> Autoriza
   </label>
 
   <label>
@@ -151,8 +146,21 @@ Autorizo o uso da minha imagem para fins de divulgação profissional (redes soc
 
 <hr>
 
+<p><b>Isenção de Responsabilidade</b></p>
+
+<div class="check-group">
+  <label>
+    <input type="checkbox" id="isencao">
+    Declaro que fui previamente informado(a) sobre possíveis reações ou intercorrências
+    e isento a profissional de qualquer responsabilidade decorrente de informações omitidas
+    ou condições previamente existentes.
+  </label>
+</div>
+
+<hr>
+
 <p><b>Assinatura do Cliente:</b></p>
-<input type="text" name="assinatura" required>
+<input type="text" name="assinatura" id="assinatura" required>
 
 <button type="submit">Enviar Termo</button>
 
@@ -165,6 +173,29 @@ Autorizo o uso da minha imagem para fins de divulgação profissional (redes soc
 
 document.getElementById("form").addEventListener("submit", function(e) {
   e.preventDefault();
+
+  // Validação manual
+  const nome = document.getElementById("nome").value.trim();
+  const data = document.getElementById("data").value;
+  const hora = document.getElementById("hora").value;
+  const assinatura = document.getElementById("assinatura").value.trim();
+  const imagem = document.querySelector('input[name="imagem"]:checked');
+  const isencao = document.getElementById("isencao").checked;
+
+  if (!nome || !data || !hora || !assinatura) {
+    alert("Preencha todos os campos obrigatórios.");
+    return;
+  }
+
+  if (!imagem) {
+    alert("Selecione a autorização de imagem.");
+    return;
+  }
+
+  if (!isencao) {
+    alert("Você precisa aceitar a isenção de responsabilidade.");
+    return;
+  }
 
   emailjs.sendForm(
     "SEU_SERVICE_ID",
