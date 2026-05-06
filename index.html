@@ -91,12 +91,28 @@
 <hr>
 
 <p><b>Agendamento e Pontualidade</b></p>
-<p>O cliente declara estar ciente de que deve comparecer no horário agendado.</p>
+<p>
+O cliente declara estar ciente de que deve comparecer no horário agendado.
+Em caso de atraso, o atendimento poderá ser ajustado conforme disponibilidade.
+</p>
 
 <hr>
 
+<p><b>Saúde e Condições da Pele (Anamnese)</b></p>
+<p>
+Declaro que fui orientado(a) a informar qualquer alergia, sensibilidade,
+doença de pele ou uso de medicamentos.
+</p>
+
 <p><b>Observações / Alergias:</b></p>
 <textarea id="alergia"></textarea>
+
+<hr>
+
+<p><b>Responsabilidade do Cliente</b></p>
+<p>
+Eu <span id="pdf_nome_inline"></span> declaro que as informações fornecidas são verdadeiras.
+</p>
 
 <hr>
 
@@ -114,7 +130,7 @@
 <div class="check-group">
   <label>
     <input type="checkbox" id="isencao">
-    Declaro que fui informado(a) e isento a profissional de responsabilidade.
+    Declaro que fui previamente informado(a) sobre possíveis reações e isento a profissional de responsabilidade.
   </label>
 </div>
 
@@ -127,7 +143,7 @@
 
 </form>
 
-<!-- MODELO DO PDF -->
+<!-- MODELO PDF -->
 <div id="pdfContent" style="display:none; padding:20px; font-family:Arial;">
 
 <h2 style="text-align:center;">📝 TERMO DE RESPONSABILIDADE E CONSENTIMENTO - MAQUIAGEM</h2>
@@ -138,7 +154,12 @@
 
 <hr>
 
-<p><b>Observações / Alergias:</b></p>
+<p><b>Agendamento e Pontualidade</b></p>
+<p>O cliente declara estar ciente de comparecer no horário.</p>
+
+<hr>
+
+<p><b>Saúde e Condições da Pele</b></p>
 <p id="pdf_alergia"></p>
 
 <hr>
@@ -156,11 +177,18 @@
 document.getElementById("form").addEventListener("submit", function(e) {
   e.preventDefault();
 
-  const nome = nome.value.trim();
-  const data = data.value;
-  const hora = hora.value;
-  const alergia = document.getElementById("alergia").value;
-  const assinatura = assinatura.value.trim();
+  const nomeEl = document.getElementById("nome");
+  const dataEl = document.getElementById("data");
+  const horaEl = document.getElementById("hora");
+  const assinaturaEl = document.getElementById("assinatura");
+  const alergiaEl = document.getElementById("alergia");
+
+  const nome = nomeEl.value.trim();
+  const data = dataEl.value;
+  const hora = horaEl.value;
+  const assinatura = assinaturaEl.value.trim();
+  const alergia = alergiaEl.value;
+
   const imagem = document.querySelector('input[name="imagem"]:checked');
   const isencao = document.getElementById("isencao").checked;
 
@@ -190,9 +218,15 @@ document.getElementById("form").addEventListener("submit", function(e) {
   const element = document.getElementById("pdfContent");
   element.style.display = "block";
 
-  html2pdf().from(element).save("termo.pdf");
+  html2pdf().set({
+    margin: 10,
+    filename: "termo.pdf",
+    html2canvas: { scale: 2 },
+    jsPDF: { unit: "mm", format: "a4", orientation: "portrait" }
+  }).from(element).save().then(() => {
+    element.style.display = "none";
+  });
 
-  element.style.display = "none";
 });
 </script>
 
