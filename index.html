@@ -14,21 +14,12 @@ body{
   padding: 20px;
 }
 
-h2{
-  text-align:center;
-}
-
 input, textarea{
   width:100%;
   border:none;
   border-bottom:1px solid #000;
   margin-top:10px;
   padding:5px;
-}
-
-.row{
-  display:flex;
-  gap:10px;
 }
 
 button{
@@ -44,95 +35,61 @@ button{
 
 <body>
 
-<h2>TERMO DE RESPONSABILIDADE E CONSENTIMENTO - MAQUIAGEM</h2>
-
 <form id="form">
 
 <label>Nome completo</label>
 <input type="text" id="nome" required>
 
-<div class="row">
-  <div>
-    <label>Data do atendimento</label>
-    <input type="date" id="data" required>
-  </div>
-
-  <div>
-    <label>Hora</label>
-    <input type="time" id="hora" required>
-  </div>
+<div>
+<label>Data</label>
+<input type="date" id="data" required>
 </div>
 
-<hr>
+<div>
+<label>Hora</label>
+<input type="time" id="hora" required>
+</div>
 
-<h3>Saúde e Condições da Pele (Anamnese)</h3>
-<p>
-Declaro que fui informado(a) sobre a necessidade de informar alergias a cosméticos,
-doenças de pele ou uso de medicamentos fortes.
-</p>
+<textarea id="alergias" placeholder="Observações"></textarea>
 
-<textarea id="alergias" placeholder="Descreva alergias ou observações"></textarea>
+<input type="text" id="nome2" placeholder="Nome novamente" required>
 
-<hr>
-
-<h3>Responsabilidade do Cliente</h3>
-<p>
-Eu <input type="text" id="nome2" placeholder="Nome novamente" required>
-comprometo-me a higienizar meu rosto antes do atendimento.
-</p>
-
-<hr>
-
-<h3>Consentimento de Imagem</h3>
-
-<label>
-<input type="radio" name="img" value="Autorizo" required>
-Autorizo uso de imagens
-</label>
-
-<br>
-
-<label>
-<input type="radio" name="img" value="Não autorizo">
-Não autorizo uso de imagens
-</label>
-
-<br><br>
+<label><input type="radio" name="img" value="Autorizo" required> Autorizo</label>
+<label><input type="radio" name="img" value="NÃO autorizo"> NÃO autorizo</label>
 
 <button type="submit">Gerar PDF</button>
 
 </form>
 
-<!-- PDF oculto -->
-<div id="pdf" style="display:none; padding:30px;">
+<div id="pdf" style="display:none; white-space:pre-wrap; font-family:Arial; padding:20px;">
 
-<h2>TERMO DE RESPONSABILIDADE E CONSENTIMENTO</h2>
-
-<p><b>Cliente:</b> <span id="p_nome"></span></p>
-
-<p><b>Data:</b> <span id="p_data"></span> | <b>Hora:</b> <span id="p_hora"></span></p>
-
-<hr>
-
-<h3>Saúde e Condições da Pele</h3>
-<p id="p_alergias"></p>
-
-<hr>
-
-<h3>Responsabilidade do Cliente</h3>
-<p id="p_responsavel"></p>
-
-<hr>
-
-<h3>Consentimento de Imagem</h3>
-<p id="p_img"></p>
-
-<hr>
-
-<p><b>Declaração:</b></p>
-<p>
-Declaro que li, entendi e concordo com todos os termos acima.
-</p>
+TERMODERESPONSABILIDADEECONSENTIMENTO-MAQUIAGEM
+IdentificaçãoCliente: <span id="p_nome"></span>
+__________________________________________________________________
+DatadoAtendimento: Hora:
+<span id="p_data"></span> <span id="p_hora"></span>
+____/_____/_____ _____:_____
+SaúdeeCondiçõesdaPele(Anamnese)
+Declaroquefuiinformado(a)sobreanecessidadedeinformarsobrealergiasa
+cosméticos(talco,conservantes,fragrâncias,etc.).DeclaroqueNÃOpossuo,ou
+informeiabaixo,alergias,sensibilidades,doençasdepeleativas(acnesevera,
+herpes,dermatite),ouusodemedicamentosfortes(ex:Roacutan).Campode
+Observações/Alergias:
+<span id="p_alergias"></span>
+______________________________________________________________________
+_____________________________
+ResponsabilidadedoCliente
+Eu <span id="p_nome2"></span> Comprometo-meahigienizarmeurostoantes
+doatendimento,casosolicitadopelamaquiadora.Casohajareaçãoalérgicadurante
+ouapósoatendimento,aresponsabilidadeéisentaàprofissional,desdequeos
+produtosutilizadostenhamsidoacordadosoupreviamentetestados.
+ConsentimentodeImagem
+(<span id="p_img"></span>)Autorizo()NÃOautorizoousodefotosevídeosdoresultadodamaquiagempara
+finsdeportfólioemredessociais.
+Assinatura:
+Li,entendieconcordocomostermos acima.
+AssinaturadoCliente:
+__________________________________________
 
 </div>
 
@@ -145,34 +102,26 @@ document.getElementById("form").addEventListener("submit", function(e){
   const hora = document.getElementById("hora").value;
   const alergias = document.getElementById("alergias").value;
   const nome2 = document.getElementById("nome2").value;
-
   const img = document.querySelector('input[name="img"]:checked');
 
   if(!img){
-    alert("Selecione o consentimento de imagem");
+    alert("Selecione o consentimento");
     return;
   }
 
-  // preencher PDF
   document.getElementById("p_nome").innerText = nome;
   document.getElementById("p_data").innerText = data;
   document.getElementById("p_hora").innerText = hora;
-  document.getElementById("p_alergias").innerText = alergias || "Nenhuma informação";
-  document.getElementById("p_responsavel").innerText =
-    `Eu ${nome2} comprometo-me a higienizar meu rosto antes do atendimento.`;
-
+  document.getElementById("p_alergias").innerText = alergias;
+  document.getElementById("p_nome2").innerText = nome2;
   document.getElementById("p_img").innerText = img.value;
 
-  // gerar PDF
   const el = document.getElementById("pdf");
   el.style.display = "block";
 
-  html2pdf()
-    .from(el)
-    .save("termo-responsabilidade.pdf")
-    .then(() => {
-      el.style.display = "none";
-    });
+  html2pdf().from(el).save("termo.pdf").then(() => {
+    el.style.display = "none";
+  });
 
 });
 </script>
