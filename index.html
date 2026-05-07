@@ -229,6 +229,7 @@ document.getElementById("btnShare").style.display = "block";
 });
 
 // compartilhar
+  
 document.getElementById("btnShare").addEventListener("click", async () => {
 
 if (!pdfBlob) {
@@ -238,17 +239,22 @@ if (!pdfBlob) {
 
 const file = new File([pdfBlob], "termo.pdf", { type: "application/pdf" });
 
-if (navigator.share) {
+// Texto automático
+const mensagem = "Segue o termo de responsabilidade assinado.";
+
+// Melhor método disponível hoje
+if (navigator.canShare && navigator.canShare({ files: [file] })) {
   await navigator.share({
-    title: "Termo de Maquiagem",
-    text: "Segue o termo preenchido",
+    title: "Termo de Responsabilidade",
+    text: mensagem,
     files: [file]
   });
 } else {
-  alert("Seu celular não suporta compartilhamento direto.");
+  alert("Seu dispositivo não suporta envio direto. Baixe o PDF e envie manualmente.");
 }
 
 });
+  
 </script>
 
 </body>
