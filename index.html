@@ -28,7 +28,7 @@ textarea { height: 60px; }
 
 .row {
   display: flex;
-  gap: 30px; /* AUMENTEI O ESPAÇAMENTO */
+  gap: 30px;
 }
 
 .row div { flex: 1; }
@@ -48,11 +48,6 @@ button {
   color: white;
   border: none;
 }
-
-#btnShare {
-  display: none;
-  background: green;
-}
 </style>
 </head>
 
@@ -65,7 +60,6 @@ button {
 <p><b>Identificação do Cliente:</b></p>
 <input type="text" id="nome" required>
 
-<!-- AJUSTE DE ESPAÇAMENTO AQUI -->
 <div class="row">
   <div>
     <p><b>Data do Atendimento:</b></p>
@@ -125,8 +119,6 @@ Caso haja reação alérgica durante ou após o atendimento, a responsabilidade 
 <button type="submit">Gerar Termo</button>
 
 </form>
-
-<button id="btnShare">📲 Compartilhar no WhatsApp</button>
 
 <!-- PDF (SEM ALTERAR CLÁUSULAS) -->
 <div id="pdf" style="display:none; padding:20px; font-family:Arial;">
@@ -206,7 +198,7 @@ if (!ok) {
   return;
 }
 
-// preencher PDF e preview
+// preencher PDF
 document.getElementById("p_nome").innerText = nome;
 document.getElementById("p_data").innerText = data;
 document.getElementById("p_hora").innerText = hora;
@@ -235,18 +227,7 @@ await worker.save();
 
 element.style.display = "none";
 
-document.getElementById("btnShare").style.display = "block";
-
-});
-
-// compartilhar
-document.getElementById("btnShare").addEventListener("click", async () => {
-
-if (!pdfBlob) {
-  alert("Gere o PDF primeiro.");
-  return;
-}
-
+/* 🔥 AQUI ESTÁ A MUDANÇA: abre compartilhamento automático */
 const file = new File([pdfBlob], "termo.pdf", { type: "application/pdf" });
 
 const mensagem = "Segue o termo de responsabilidade assinado.";
@@ -258,7 +239,7 @@ if (navigator.canShare && navigator.canShare({ files: [file] })) {
     files: [file]
   });
 } else {
-  alert("Seu dispositivo não suporta envio direto. Baixe o PDF e envie manualmente.");
+  alert("Seu dispositivo não suporta envio direto. Baixe o PDF manualmente.");
 }
 
 });
