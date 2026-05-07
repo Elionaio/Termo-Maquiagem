@@ -26,7 +26,11 @@ input, textarea {
 
 textarea { height: 60px; }
 
-.row { display: flex; gap: 10px; }
+.row {
+  display: flex;
+  gap: 30px; /* AUMENTEI O ESPAÇAMENTO */
+}
+
 .row div { flex: 1; }
 
 .radio-group { display: flex; gap: 20px; margin-top: 10px; }
@@ -61,10 +65,17 @@ button {
 <p><b>Identificação do Cliente:</b></p>
 <input type="text" id="nome" required>
 
-<p><b>Data do Atendimento:</b> &nbsp;&nbsp;          <b>Hora:</b></p>
+<!-- AJUSTE DE ESPAÇAMENTO AQUI -->
 <div class="row">
-  <div><input type="date" id="data" required></div>
-  <div><input type="time" id="hora" required></div>
+  <div>
+    <p><b>Data do Atendimento:</b></p>
+    <input type="date" id="data" required>
+  </div>
+
+  <div>
+    <p><b>Hora:</b></p>
+    <input type="time" id="hora" required>
+  </div>
 </div>
 
 <hr>
@@ -124,7 +135,7 @@ Caso haja reação alérgica durante ou após o atendimento, a responsabilidade 
 
 <p><b>Identificação do Cliente:</b> <span id="p_nome"></span></p>
 
-<p><b>Data do Atendimento:</b> <span id="p_data"></span> &nbsp;&nbsp; <b>Hora:</b> <span id="p_hora"></span></p>
+<p><b>Data do Atendimento:</b> <span id="p_data"></span> &nbsp;&nbsp;&nbsp;&nbsp; <b>Hora:</b> <span id="p_hora"></span></p>
 
 <hr>
 
@@ -229,7 +240,6 @@ document.getElementById("btnShare").style.display = "block";
 });
 
 // compartilhar
-  
 document.getElementById("btnShare").addEventListener("click", async () => {
 
 if (!pdfBlob) {
@@ -239,10 +249,8 @@ if (!pdfBlob) {
 
 const file = new File([pdfBlob], "termo.pdf", { type: "application/pdf" });
 
-// Texto automático
 const mensagem = "Segue o termo de responsabilidade assinado.";
 
-// Melhor método disponível hoje
 if (navigator.canShare && navigator.canShare({ files: [file] })) {
   await navigator.share({
     title: "Termo de Responsabilidade",
@@ -254,7 +262,6 @@ if (navigator.canShare && navigator.canShare({ files: [file] })) {
 }
 
 });
-  
 </script>
 
 </body>
