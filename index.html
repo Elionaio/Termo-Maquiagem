@@ -58,9 +58,14 @@ button {
 
 <form id="form">
 
-<p><b>Identificação do Cliente:</b> <span id="p_nome"></span></p>
+<p><b>Identificação do Cliente:</b></p>
+<input type="text" id="nome" required>
 
-<p><b>Data do Atendimento:</b> <span id="p_data"></span> &nbsp;&nbsp; <b>Hora:</b> <span id="p_hora"></span></p>
+<p><b>Data do Atendimento:</b> &nbsp;&nbsp; <b>Hora:</b></p>
+<div class="row">
+  <div><input type="date" id="data" required></div>
+  <div><input type="time" id="hora" required></div>
+</div>
 
 <hr>
 
@@ -72,7 +77,7 @@ Declaro que NÃO possuo, ou informei abaixo, alergias, sensibilidades, doenças 
 </p>
 
 <p><b>Campo de Observações / Alergias:</b></p>
-<p id="p_alergia"></p>
+<textarea id="alergia"></textarea>
 
 <hr>
 
@@ -94,6 +99,15 @@ Caso haja reação alérgica durante ou após o atendimento, a responsabilidade 
 
 <hr>
 
+<p><b>Confirmações:</b></p>
+<div class="check-group">
+  <label><input type="checkbox" class="check"> Declaro que li e concordo com todas as informações</label>
+  <label><input type="checkbox" class="check"> Estou ciente das responsabilidades assumidas</label>
+  <label><input type="checkbox" class="check"> Autorizo o procedimento conforme descrito</label>
+</div>
+
+<hr>
+
 <p><b>Assinatura do Cliente:</b></p>
 <input type="text" id="assinatura" required>
 
@@ -103,7 +117,7 @@ Caso haja reação alérgica durante ou após o atendimento, a responsabilidade 
 
 <button id="btnShare">📲 Compartilhar no WhatsApp</button>
 
-<!-- PDF -->
+<!-- PDF (SEM ALTERAR CLÁUSULAS) -->
 <div id="pdf" style="display:none; padding:20px; font-family:Arial;">
 
 <h2 style="text-align:center;">TERMO DE RESPONSABILIDADE E CONSENTIMENTO - MAQUIAGEM</h2>
@@ -129,7 +143,7 @@ Declaro que NÃO possuo, ou informei abaixo, alergias, sensibilidades, doenças 
 <p><b>Responsabilidade do Cliente</b></p>
 
 <p>
-Eu <b><span id="p_assinatura"></span></b> comprometo-me a higienizar meu rosto antes do atendimento, caso solicitado pela maquiadora.
+Eu <b><span id="p_assinatura_pdf"></span></b> comprometo-me a higienizar meu rosto antes do atendimento, caso solicitado pela maquiadora.
 Caso haja reação alérgica durante ou após o atendimento, a responsabilidade é isenta à profissional, desde que os produtos utilizados tenham sido acordados ou previamente testados.
 </p>
 
@@ -181,12 +195,13 @@ if (!ok) {
   return;
 }
 
-// preencher PDF
+// preencher PDF e preview
 document.getElementById("p_nome").innerText = nome;
 document.getElementById("p_data").innerText = data;
 document.getElementById("p_hora").innerText = hora;
 document.getElementById("p_alergia").innerText = alergia || "Nenhuma";
 document.getElementById("p_imagem").innerText = imagem.value;
+document.getElementById("p_assinatura_pdf").innerText = assinatura;
 document.getElementById("p_assinatura").innerText = assinatura;
 
 const lista = document.getElementById("p_checks");
